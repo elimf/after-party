@@ -73,28 +73,29 @@ const App = () => {
   }, [connected]);
 
   return (
-    <div>
-      <h1>WebSocket Client</h1>
-      <div>
-        {!connected ? (
-          <Connect onConnect={connectWebSocket} />
-        ) : (
-          <button onClick={disconnectWebSocket}>Disconnect</button>
-        )}
-      </div>
-      {connected && !currentRoom && (
-        <>
-          <CreateRoom onCreateRoom={createRoom} />
-          <RoomList rooms={rooms} onJoinRoom={joinRoom} />
-        </>
-      )}
-      {connected && currentRoom && (
-        <>
-          <Chat messages={messages} onSendMessage={sendMessage} />
-          <h2>Room: {currentRoom}</h2>
-        </>
+    <div className="app-container">
+    <div className="header">
+      {!connected ? (
+        <Connect onConnect={connectWebSocket} />
+      ) : (
+        <button onClick={disconnectWebSocket} className="disconnect-button">Disconnect</button>
       )}
     </div>
+    <div className="main-content">
+      {connected && !currentRoom && (
+        <div className="left-panel">
+          <CreateRoom onCreateRoom={createRoom} />
+          <RoomList rooms={rooms} onJoinRoom={joinRoom} />
+        </div>
+      )}
+      {connected && currentRoom && (
+        <div className="chat-container">
+          <Chat messages={messages} onSendMessage={sendMessage} />
+          <h2>Room: {currentRoom}</h2>
+        </div>
+      )}
+    </div>
+  </div>
   );
 };
 
