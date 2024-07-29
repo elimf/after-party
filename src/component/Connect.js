@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 import '../style/Connect.css';
 
 const Connect = ({ onConnect }) => {
@@ -25,9 +24,8 @@ const Connect = ({ onConnect }) => {
         className="connect-input"
       />
       <button onClick={handleConnect} className="connect-button">
-        Connect
+        Créer
       </button>
-      <ToastContainer position="top-center" />
     </div>
   );
 };
