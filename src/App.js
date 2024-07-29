@@ -4,6 +4,8 @@ import Chat from './component/Chat';
 import RoomManager from './component/RoomManager';
 import useWebSocket from './hooks/useWebSocket';
 import './App.css'; // Importez votre CSS pour l'application
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   const [currentRoom, setCurrentRoom] = useState('');
@@ -37,9 +39,7 @@ const App = () => {
       </div>
       <div className="main-content">
         {connected && !currentRoom && (
-          <div className="left-panel">
             <RoomManager rooms={rooms} onJoinRoom={handleJoinRoom} onCreateRoom={createRoom} />
-          </div>
         )}
         {connected && currentRoom && (
           <div className="chat-container">
@@ -48,6 +48,7 @@ const App = () => {
           </div>
         )}
       </div>
+      <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
 };
