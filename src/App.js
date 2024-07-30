@@ -13,6 +13,7 @@ const App = () => {
     connected,
     messages,
     rooms,
+    users,
     connectWebSocket,
     sendMessage,
     createRoom,
@@ -39,7 +40,7 @@ const App = () => {
       </div>
       <div className="main-content">
         {connected && !currentRoom && (
-            <RoomManager rooms={rooms} onJoinRoom={handleJoinRoom} onCreateRoom={createRoom} />
+            <RoomManager rooms={rooms} users={users} onJoinRoom={handleJoinRoom} onCreateRoom={createRoom} />
         )}
         {connected && currentRoom && (
           <div className="chat-container">

@@ -5,6 +5,10 @@ const useWebSocket = (url) => {
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [rooms, setRooms] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [quizQuestion, setQuizQuestion] = useState(null);
+  const [quizChoices, setQuizChoices] = useState([]);
+  const [quizScores, setQuizScores] = useState([]);
   const socketRef = useRef(null);
 
   const connectWebSocket = (name) => {
@@ -30,13 +34,22 @@ const useWebSocket = (url) => {
         ]);
       } else if (parsedMessage.type === "rooms") {
         setRooms(parsedMessage.rooms);
-        toast.success("Rooms list updated"); // Affiche une notification lorsque les rooms sont mises à jour
+        toast.success("Room list updated");
+      } else if (parsedMessage.type === "users") {
+        setUsers(parsedMessage.users);
+        toast.success("User list updated");
+      } else if (parsedMessage.type === "quizQuestion") {
+        setQuizQuestion(parsedMessage.question);
+        setQuizChoices(parsedMessage.choices);
+      } else if (parsedMessage.type === "quizEnd") {
+        setQuizScores(parsedMessage.scores);
+        toast.success("Quiz ended. Scores updated.");
       }
     };
 
     socketRef.current.onclose = () => {
       setConnected(false);
-      toast.error("Disconnected from the server"); // Affiche une notification lorsque la connexion est fermée
+      toast.error("Disconnected from server");
     };
   };
 
@@ -51,14 +64,27 @@ const useWebSocket = (url) => {
       socketRef.current.send(
         JSON.stringify({ type: "createRoom", room: roomName })
       );
-      toast.success(`Room "${roomName}" crée`);
+      toast.success(`Room "${roomName}" created`);
     }
   };
 
-  const joinRoom = (roomId) => {
-    if (socketRef.current && roomId) {
-      socketRef.current.send(JSON.stringify({ type: "joinRoom", roomId }));
+  const joinRoom = (roomName) => {
+    if (socketRef.current && roomName) {
+      socketRef.current.send(JSON.stringify({ type: "joinRoom", room: roomName }));
       toast.info("Joining room...");
+    }
+  };
+
+  const startQuiz = () => {
+    if (socketRef.current) {
+      socketRef.current.send(JSON.stringify({ type: "startQuiz" }));
+      toast.info("Quiz started!");
+    }
+  };
+
+  const answerQuiz = (answer) => {
+    if (socketRef.current && answer) {
+      socketRef.current.send(JSON.stringify({ type: "answerQuiz", answer }));
     }
   };
 
@@ -71,6 +97,7 @@ const useWebSocket = (url) => {
   useEffect(() => {
     if (connected) {
       socketRef.current.send(JSON.stringify({ type: "getRooms" }));
+      socketRef.current.send(JSON.stringify({ type: "getUsers" }));
     }
   }, [connected]);
 
@@ -78,10 +105,16 @@ const useWebSocket = (url) => {
     connected,
     messages,
     rooms,
+    users,
+    quizQuestion,
+    quizChoices,
+    quizScores,
     connectWebSocket,
     sendMessage,
     createRoom,
     joinRoom,
+    startQuiz,
+    answerQuiz,
     disconnectWebSocket,
   };
 };
