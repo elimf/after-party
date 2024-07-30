@@ -40,15 +40,17 @@ const RoomManager = ({ rooms, users, onCreateRoom, onJoinRoom }) => {
       </div>
 
       <div className="user-list-section">
-        <h2>Utilisateurs Connectés</h2>
-        <ul className="user-list">
-          {users.map((user) => (
-            <li key={user.id} className="user-list-item">
-              {user.name}
-            </li>
-          ))}
-        </ul>
-      </div>
+  <h2>Utilisateurs Connectés</h2>
+  <ul className="user-list">
+    {users.map((user) => (
+      <li key={user.id} className="user-list-item">
+        <span className="status-indicator"></span> 
+        {user.name}
+      </li>
+    ))}
+  </ul>
+</div>
+
 
       <Modal
         isOpen={isModalOpen}

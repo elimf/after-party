@@ -136,3 +136,18 @@
     background-color: #c62828;
   }
   
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: green; /* Couleur du voyant vert */
+    margin-right: 10px; /* Espace entre le voyant et le nom */
+    display: inline-block;
+  }
+
+  .room-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }

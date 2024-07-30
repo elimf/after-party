@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale'; 
 import '../style/Chat.css'; // Assurez-vous que le chemin est correct
 
-const Chat = ({ messages, onSendMessage }) => {
+const Chat = ({ room, onSendMessage }) => {
   const [message, setMessage] = useState('');
 
   const handleSendMessage = () => {
@@ -14,11 +16,18 @@ const Chat = ({ messages, onSendMessage }) => {
   return (
     <div className="chat-container">
       <ul className="chat-message-list">
-        {messages.map((msg, index) => (
-          <li key={index} className="chat-message-item">
-            <strong>{msg.from}:</strong> <span>{msg.message}</span>
-          </li>
-        ))}
+        {room.messages.map((msg, index) => {
+          // Formatage de la date relative
+          const date = new Date(msg.createdAt);
+          const relativeTime = formatDistanceToNow(date, { addSuffix: true,locale: fr });
+
+          return (
+            <li key={index} className="chat-message-item">
+              <span className="chat-message-time"> ({relativeTime})</span>
+              <strong>{msg.name}:</strong> <span>{msg.text}</span>
+            </li>
+          );
+        })}
       </ul>
       <div className="chat-input-container">
         <input

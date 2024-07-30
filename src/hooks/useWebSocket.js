@@ -3,12 +3,13 @@ import { toast } from "react-toastify";
 
 const useWebSocket = (url) => {
   const [connected, setConnected] = useState(false);
-  const [messages, setMessages] = useState([]);
   const [rooms, setRooms] = useState([]);
+  const [currentRoom, setCurrentRoom] = useState(null);
   const [users, setUsers] = useState([]);
   const [quizQuestion, setQuizQuestion] = useState(null);
   const [quizChoices, setQuizChoices] = useState([]);
   const [quizScores, setQuizScores] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const socketRef = useRef(null);
 
   const connectWebSocket = (name) => {
@@ -20,57 +21,76 @@ const useWebSocket = (url) => {
 
     socketRef.current.onmessage = (event) => {
       const parsedMessage = JSON.parse(event.data);
-      if (parsedMessage.type === "system") {
-        if (parsedMessage.message.includes("Welcome")) {
-          setConnected(true);
-          toast.success(parsedMessage.message);
-        } else {
-          toast.info(parsedMessage.message);
-        }
-      } else if (parsedMessage.type === "message") {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { from: parsedMessage.from, message: parsedMessage.message },
-        ]);
-      } else if (parsedMessage.type === "rooms") {
-        setRooms(parsedMessage.rooms);
-        toast.success("Room list updated");
-      } else if (parsedMessage.type === "users") {
-        setUsers(parsedMessage.users);
-        toast.success("User list updated");
-      } else if (parsedMessage.type === "quizQuestion") {
-        setQuizQuestion(parsedMessage.question);
-        setQuizChoices(parsedMessage.choices);
-      } else if (parsedMessage.type === "quizEnd") {
-        setQuizScores(parsedMessage.scores);
-        toast.success("Quiz ended. Scores updated.");
+      const { type, message, info, rooms, users, question, choices, scores, room } = parsedMessage;
+    
+      switch (type) {
+        case "system":
+          if (message.includes("Bienvenue") && info) {
+            setCurrentUser(info);
+            setConnected(true);
+            toast.success(message);
+          } else {
+            toast.info(message);
+          }
+          break;
+        case "room":
+          console.log(room);
+          setCurrentRoom({room});
+          break;
+        case "rooms":
+          setRooms(rooms);
+          break;
+    
+        case "users":
+          setUsers(users);
+          break;
+    
+        case "quizQuestion":
+          setQuizQuestion(question);
+          setQuizChoices(choices);
+          break;
+    
+        case "quizEnd":
+          setQuizScores(scores);
+          toast.success("Quiz ended. Scores updated.");
+          break;
+    
+        default:
+          break;
       }
     };
+    
 
     socketRef.current.onclose = () => {
+      setCurrentRoom(null);
+      setCurrentUser(null);
       setConnected(false);
-      toast.error("Disconnected from server");
+      toast.error("Déconnexion");
     };
   };
 
   const sendMessage = (message) => {
     if (socketRef.current && message) {
-      socketRef.current.send(JSON.stringify({ type: "message", message }));
+      socketRef.current.send(JSON.stringify({ type: "message", message , user: currentUser.id , roomId: currentRoom.room.id}));
     }
   };
 
   const createRoom = (roomName) => {
     if (socketRef.current && roomName) {
       socketRef.current.send(
-        JSON.stringify({ type: "createRoom", room: roomName })
+        JSON.stringify({ type: "createRoom", room: roomName, owner: currentUser.id })
       );
-      toast.success(`Room "${roomName}" created`);
+      toast.success(`Room "${roomName}" créee!`);
     }
   };
 
-  const joinRoom = (roomName) => {
-    if (socketRef.current && roomName) {
-      socketRef.current.send(JSON.stringify({ type: "joinRoom", room: roomName }));
+  const joinRoom = (roomId) => {
+    if (socketRef.current && roomId) {
+      socketRef.current.send(
+        JSON.stringify({ type: "joinRoom", roomId: roomId , user: currentUser.id})
+      );
+      console.log(currentUser.id);
+      console.log(roomId);
       toast.info("Joining room...");
     }
   };
@@ -103,7 +123,8 @@ const useWebSocket = (url) => {
 
   return {
     connected,
-    messages,
+    currentUser,
+    currentRoom,
     rooms,
     users,
     quizQuestion,
