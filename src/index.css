@@ -18,3 +18,11 @@ body {
   border-radius: 5px;
   cursor: pointer;
 }
+.leave-room-button {
+  padding: 10px 20px;
+  background-color: #f47536;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

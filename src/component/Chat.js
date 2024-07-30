@@ -15,7 +15,10 @@ const Chat = ({ room, onSendMessage }) => {
 
   return (
     <div className="chat-container">
+    <div className='w-100'>
+    <h2 className="chat-room-name">{room.name}</h2>
       <ul className="chat-message-list">
+      
         {room.messages.map((msg, index) => {
           // Formatage de la date relative
           const date = new Date(msg.createdAt);
@@ -29,16 +32,17 @@ const Chat = ({ room, onSendMessage }) => {
           );
         })}
       </ul>
+    </div>
       <div className="chat-input-container">
         <input
           type="text"
-          placeholder="Enter your message"
+          placeholder="Entre ton message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           className="chat-input"
         />
         <button onClick={handleSendMessage} className="chat-send-button">
-          Send Message
+          Envoyer
         </button>
       </div>
     </div>

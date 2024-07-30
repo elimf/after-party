@@ -144,10 +144,3 @@
     margin-right: 10px; /* Espace entre le voyant et le nom */
     display: inline-block;
   }
-
-  .room-container{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: nowrap;
-  }

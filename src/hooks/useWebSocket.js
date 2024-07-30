@@ -95,6 +95,13 @@ const useWebSocket = (url) => {
     }
   };
 
+  const leaveRoom = () => {
+    if (socketRef.current) {
+      socketRef.current.send(JSON.stringify({ type: "leaveRoom" , user: currentUser.id , roomId: currentRoom.room.id}));
+      setCurrentRoom(null);
+    }
+  }
+
   const startQuiz = () => {
     if (socketRef.current) {
       socketRef.current.send(JSON.stringify({ type: "startQuiz" }));
@@ -134,6 +141,7 @@ const useWebSocket = (url) => {
     sendMessage,
     createRoom,
     joinRoom,
+    leaveRoom,
     startQuiz,
     answerQuiz,
     disconnectWebSocket,
