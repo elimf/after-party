@@ -64,6 +64,7 @@ const App = () => {
             users={users}
             onJoinRoom={handleJoinRoom}
             onCreateRoom={createRoom}
+            currentUser={currentUser}
           />
         )}
         {connected && currentRoom && (

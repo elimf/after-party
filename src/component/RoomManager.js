@@ -4,11 +4,10 @@ import '../style/RoomManager.css'; // Assurez-vous d'importer le fichier CSS
 
 Modal.setAppElement('#root'); // Assurez-vous d'indiquer l'élément racine de votre application
 
-const RoomManager = ({ rooms, users, onCreateRoom, onJoinRoom }) => {
+const RoomManager = ({ rooms, users, onCreateRoom, onJoinRoom,currentUser }) => {
   const [room, setRoom] = useState('');
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleCreateRoom = () => {
     if (room.trim() === '') {
       setError('Le nom de la salle ne peut pas être vide');
@@ -42,12 +41,12 @@ const RoomManager = ({ rooms, users, onCreateRoom, onJoinRoom }) => {
       <div className="user-list-section">
   <h2>Utilisateurs Connectés</h2>
   <ul className="user-list">
-    {users.map((user) => (
-      <li key={user.id} className="user-list-item">
-        <span className="status-indicator"></span> 
-        {user.name}
-      </li>
-    ))}
+  {users.map((user) => (
+    <li key={user.id} className="user-list-item">
+          <span className="status-indicator"></span>
+          {user.name}  <i>{user.id === currentUser.id ? `(Me)` : ""}</i> 
+        </li>
+      ))}
   </ul>
 </div>
 
