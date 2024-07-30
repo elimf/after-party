@@ -1,8 +1,7 @@
 import React from "react";
 import Connect from "./component/Connect";
-import Chat from "./component/Chat";
+import Waiting from "./component/Waiting";
 import RoomManager from "./component/RoomManager";
-import Quiz from "./component/Quiz";
 import useWebSocket from "./hooks/useWebSocket";
 import "./App.css";
 import { ToastContainer } from "react-toastify";
@@ -37,6 +36,8 @@ const App = () => {
   const handleAnswerQuiz = (answer) => {
     answerQuiz(answer);
   };
+  console.log(currentRoom);
+  console.log(currentUser);
 
   return (
     <div className="app-container">
@@ -59,7 +60,7 @@ const App = () => {
       </div>
       <div className="main-content">
         {connected && !currentRoom && (
-          <RoomManager
+          <Waiting
             rooms={rooms}
             users={users}
             onJoinRoom={handleJoinRoom}
@@ -68,23 +69,15 @@ const App = () => {
           />
         )}
         {connected && currentRoom && (
-          <div className="room-container">
-            <div className="games-section">
-              <button onClick={startQuiz} className="start-quiz-button">
-                Start Quiz
-              </button>
-              {quizQuestion && (
-                <Quiz
-                  question={quizQuestion}
-                  choices={quizChoices}
-                  onAnswer={handleAnswerQuiz}
-                />
-              )}
-            </div>
-            <div className="chat-section">
-              <Chat room={currentRoom.room} onSendMessage={sendMessage} />
-            </div>
-          </div>
+          <RoomManager
+            currentRoom={currentRoom}
+            currentUser={currentUser}
+            startQuiz={startQuiz}
+            quizQuestion={quizQuestion}
+            quizChoices={quizChoices}
+            handleAnswerQuiz={handleAnswerQuiz}
+            sendMessage={sendMessage}
+          />
         )}
       </div>
       <ToastContainer

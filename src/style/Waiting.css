@@ -1,0 +1,146 @@
+/* RoomManager.css */
+
+.room-manager-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-around;
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  .room-list-section, .user-list-section {
+    margin: 10px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 50%;
+  }
+  
+  .room-list-section {
+    border: 1px solid #ddd;
+  }
+  
+  .user-list-section {
+    border: 1px solid #ddd;
+  }
+  
+  .room-list-section h2, .user-list-section h2 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .room-list, .user-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .room-list-item, .user-list-item {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  
+  .room-list-item:hover, .user-list-item:hover {
+    background-color: #f1f1f1;
+    transform: scale(1.02);
+  }
+  
+  .create-room-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #4CAF50;
+  }
+  
+  .create-room-input {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    font-size: 16px;
+  }
+  
+  .create-room-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, transform 0.3s;
+  }
+  
+  .create-room-button:hover {
+    background-color: #45a049;
+    transform: scale(1.02);
+  }
+  
+  .create-room-button:disabled {
+    background-color: #9E9E9E;
+    cursor: not-allowed;
+  }
+  
+  .create-room-error {
+    color: #ff4d4d;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  
+  .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+  }
+  
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .modal-close-button {
+    padding: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+  }
+  
+  .modal-close-button:hover {
+    background-color: #c62828;
+  }
+  
+  .status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: green; /* Couleur du voyant vert */
+    margin-right: 10px; /* Espace entre le voyant et le nom */
+    display: inline-block;
+  }
