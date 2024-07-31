@@ -17,6 +17,7 @@ const App = () => {
     quizQuestion,
     quizChoices,
     quizScores,
+    quizStarted,
     connectWebSocket,
     sendMessage,
     createRoom,
@@ -36,8 +37,7 @@ const App = () => {
   const handleAnswerQuiz = (answer) => {
     answerQuiz(answer);
   };
-  console.log(currentRoom);
-  console.log(currentUser);
+
 
   return (
     <div className="app-container">
@@ -51,7 +51,7 @@ const App = () => {
             </button>
 
             {currentRoom && (
-              <button onClick={handleLeaveRoom} className="leave-room-button">
+              <button onClick={handleLeaveRoom} className={`leave-room-button ${currentRoom.isTriviaRunning ? "disabled" : ""}`}>
                 Quitter la salle
               </button>
             )}
@@ -76,6 +76,7 @@ const App = () => {
             quizQuestion={quizQuestion}
             quizChoices={quizChoices}
             handleAnswerQuiz={handleAnswerQuiz}
+            quizStarted={quizStarted}
             sendMessage={sendMessage}
           />
         )}
