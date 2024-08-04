@@ -8,6 +8,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
+  const apiUrl = process.env.REACT_APP_API_URL;
   const {
     connected,
     currentUser,
@@ -23,7 +24,7 @@ const App = () => {
     startQuiz,
     answerQuiz,
     disconnectWebSocket,
-  } = useWebSocket("ws://192.168.1.62:3000");
+  } = useWebSocket(apiUrl);
 
   const handleJoinRoom = (roomId) => {
     joinRoom(roomId);
