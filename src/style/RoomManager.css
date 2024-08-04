@@ -44,4 +44,60 @@
     background-color: #45a049;
     transform: scale(1.02);
   }
+
+  /* Styles pour la modale et son overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75); /* Couleur de fond semi-transparente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff; /* Couleur de fond de la modale */
+  padding: 20px; /* Espacement interne */
+  border-radius: 8px; /* Coins arrondis */
+  max-width: 500px; /* Largeur maximale */
+  width: 100%; /* Utilisation complète de la largeur disponible */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Ombre autour de la modale */
+  z-index: 1001;
+}
+
+.modal h2 {
+  margin-top: 0; /* Pas de marge en haut */
+  font-size: 24px; /* Taille de police pour le titre */
+}
+
+.modal select {
+  width: 100%; /* Utilisation complète de la largeur */
+  padding: 10px; /* Espacement interne */
+  margin-bottom: 20px; /* Espace sous le select */
+  font-size: 16px; /* Taille de police */
+}
+
+.modal button {
+  padding: 10px 20px; /* Espacement interne */
+  margin-right: 10px; /* Espace à droite du bouton */
+  font-size: 16px; /* Taille de police */
+  cursor: pointer; /* Curseur pointeur */
+  border: none; /* Pas de bordure */
+  border-radius: 4px; /* Coins légèrement arrondis */
+}
+
+.modal button:first-of-type {
+  background-color: #007bff; /* Couleur de fond pour le bouton primaire */
+  color: white; /* Couleur de texte */
+}
+
+.modal button:last-of-type {
+  background-color: #6c757d; /* Couleur de fond pour le bouton secondaire */
+  color: white; /* Couleur de texte */
+}
+
   

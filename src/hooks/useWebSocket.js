@@ -6,9 +6,6 @@ const useWebSocket = (url) => {
   const [rooms, setRooms] = useState([]);
   const [currentRoom, setCurrentRoom] = useState(null);
   const [users, setUsers] = useState([]);
-  const [quizQuestion, setQuizQuestion] = useState(null);
-  const [quizChoices, setQuizChoices] = useState([]);
-  const [quizScores, setQuizScores] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [answerTime, setAnswerTime] = useState(0); // Temps de réponse
   const [quizStarted, setQuizStarted] = useState(false); // Indicateur si le quiz a démarré
@@ -23,7 +20,7 @@ const useWebSocket = (url) => {
 
     socketRef.current.onmessage = (event) => {
       const parsedMessage = JSON.parse(event.data);
-      const { type, message, info, rooms, users, question, choices, scores, room, correctAnswer,podium } = parsedMessage;
+      const { type, message, info, rooms, users,room, correctAnswer } = parsedMessage;
 
       switch (type) {
         case "system":
@@ -35,33 +32,28 @@ const useWebSocket = (url) => {
             toast.info(message);
           }
           break;
+          case "currentUser":
+            setCurrentUser(info);
+            break;
         case "room":
           setCurrentRoom(room);
           break;
         case "rooms":
           setRooms(rooms);
           break;
-    
         case "users":
           setUsers(users);
           break;
         case "question":
-          setQuizQuestion(question);
-          setQuizChoices(choices);
-          setQuizStarted(true); // Indiquer que le quiz a commencé
-          setAnswerTime(Date.now()); // Enregistrer le temps de début de la réponse
+          setQuizStarted(true);
+          setAnswerTime(Date.now());
           break;
         case "answer":
           toast.info(`Réponse correcte : ${correctAnswer}`);
           break;
-        case "endTrivia":
-          setQuizScores(scores);
+        case "endQuiz":
           toast.success("Le quiz est terminé. Scores mis à jour.");
-          setQuizStarted(false); // Réinitialiser l'état du quiz
-          break;
-        case "podium":
-          console.log(podium);
-          toast.info(`Podium : ${podium.map(u => `${u.name}: ${u.score}`).join(", ")}`);
+          setQuizStarted(false);
           break;
     
         default:
@@ -109,9 +101,9 @@ const useWebSocket = (url) => {
     }
   };
 
-  const startQuiz = () => {
+  const startQuiz = (typeQuestion, numberQuestion, difficulty) => {
     if (socketRef.current) {
-      socketRef.current.send(JSON.stringify({ type: "startTrivia", roomId: currentRoom.id, user: currentUser.id, typeQuestion: "Science" }));
+      socketRef.current.send(JSON.stringify({ type: "startQuiz", roomId: currentRoom.id, user: currentUser.id, typeQuestion: typeQuestion, numberQuestion: numberQuestion, difficulty: difficulty }));
       toast.info("Quiz démarré!");
     }
   };
@@ -149,9 +141,6 @@ const useWebSocket = (url) => {
     currentRoom,
     rooms,
     users,
-    quizQuestion,
-    quizChoices,
-    quizScores,
     quizStarted,
     connectWebSocket,
     sendMessage,

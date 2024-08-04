@@ -14,9 +14,6 @@ const App = () => {
     currentRoom,
     rooms,
     users,
-    quizQuestion,
-    quizChoices,
-    quizScores,
     quizStarted,
     connectWebSocket,
     sendMessage,
@@ -26,7 +23,7 @@ const App = () => {
     startQuiz,
     answerQuiz,
     disconnectWebSocket,
-  } = useWebSocket("ws://localhost:3000");
+  } = useWebSocket("ws://192.168.1.62:3000");
 
   const handleJoinRoom = (roomId) => {
     joinRoom(roomId);
@@ -51,7 +48,7 @@ const App = () => {
             </button>
 
             {currentRoom && (
-              <button onClick={handleLeaveRoom} className={`leave-room-button ${currentRoom.isTriviaRunning ? "disabled" : ""}`}>
+              <button onClick={handleLeaveRoom} className={`leave-room-button ${currentRoom.quiz.isRunning ? "disabled" : ""}`}>
                 Quitter la salle
               </button>
             )}
@@ -73,8 +70,6 @@ const App = () => {
             currentRoom={currentRoom}
             currentUser={currentUser}
             startQuiz={startQuiz}
-            quizQuestion={quizQuestion}
-            quizChoices={quizChoices}
             handleAnswerQuiz={handleAnswerQuiz}
             quizStarted={quizStarted}
             sendMessage={sendMessage}
