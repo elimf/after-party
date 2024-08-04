@@ -5,11 +5,20 @@ import QuizQuestion from './QuizQuestion';
 import QuizResults from './QuizResults';
 import '../style/RoomManager.css'; // Assurez-vous que ce chemin est correct
 
-const RoomManager = ({ currentRoom, currentUser, startQuiz, handleAnswerQuiz, quizStarted, sendMessage }) => {
+const RoomManager = ({ 
+  currentRoom, 
+  currentUser, 
+  startQuiz, 
+  handleAnswerQuiz, 
+  quizStarted, 
+  sendMessage,
+  // startPetitBac // Ajoutez une nouvelle prop pour démarrer le Petit Bac
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [questionType, setQuestionType] = useState('');
   const [questionCount, setQuestionCount] = useState('');
   const [difficulty, setDifficulty] = useState('');
+  const [isPetitBacActive, setIsPetitBacActive] = useState(false); // État pour savoir si le Petit Bac est actif
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -21,33 +30,46 @@ const RoomManager = ({ currentRoom, currentUser, startQuiz, handleAnswerQuiz, qu
 
   const handleStartQuiz = () => {
     if (questionType && questionCount && difficulty) {
-      startQuiz(questionType, questionCount, difficulty );
+      startQuiz(questionType, questionCount, difficulty);
       closeModal();
     }
+  };
+
+  const handleStartPetitBac = () => {
+    // Assurez-vous que la fonction startPetitBac est définie pour démarrer le jeu du Petit Bac
+    // startPetitBac();
+    setIsPetitBacActive(true); // Marque le Petit Bac comme actif
   };
 
   return (
     <div className="room-container">
       <div className="games-section">
-        {currentRoom.ownerId === currentUser.id && !currentRoom.quiz.isRunning ? (
-          <button onClick={openModal} className="start-quiz-button">
-            Commencer le Quiz
-          </button>
-        ) : (
-          <></>
-        )}
-        {quizStarted && (
+        {currentRoom.ownerId === currentUser.id && !currentRoom.quiz.isRunning && !isPetitBacActive ? (
+          <div className="buttons-grid">
+            <button onClick={openModal} className="start-quiz-button">
+              Commencer le Quiz
+            </button>
+            <button onClick={handleStartPetitBac} className="start-petitbac-button" disabled >
+              Commencer le Petit Bac
+            </button>
+          </div>
+        ) : null}
+        {quizStarted && !isPetitBacActive ? (
           <QuizQuestion
             room={currentRoom}
             answerQuiz={handleAnswerQuiz}
             quizStarted={quizStarted}
           />
+        ) : null}
+        {!quizStarted && !currentRoom.quiz.isRunning && !isPetitBacActive && currentRoom.quiz.results ? (
+          <QuizResults quiz={currentRoom.quiz} />
+        ) : null}
+        {isPetitBacActive && (
+          <div className="petit-bac-section">
+            {/* Contenu du jeu du Petit Bac ici */}
+            <p>Le jeu du Petit Bac est en cours...</p>
+          </div>
         )}
-        {!quizStarted && !currentRoom.quiz.isRunning && currentRoom.quiz.results ? (
-        <QuizResults quiz={currentRoom.quiz} />
-      ) : (
-        <></>
-      )}
       </div>
       <div className="chat-section">
         <Chat room={currentRoom} onSendMessage={sendMessage} />

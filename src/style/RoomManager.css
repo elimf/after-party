@@ -45,6 +45,31 @@
     transform: scale(1.02);
   }
 
+  .start-petitbac-button {
+    background-color: #007bff; /* Vert */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .start-petitbac-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+  .start-petitbac-button:disabled:hover {
+    background-color: #6c757d;
+  }
+  
+.start-petitbac-button:hover {
+    background-color: #007bff7d;
+  }
+  
   /* Styles pour la modale et son overlay */
 .modal-overlay {
   position: fixed;
