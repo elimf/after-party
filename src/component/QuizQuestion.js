@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import '../style/QuizQuestion.css'; // Assurez-vous d'ajouter ce fichier CSS
+import { difficultyTranslation } from "../hooks/quizUtils";
 
 const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
-  console.log(room);
   const { quiz, currentQuestionIndex } = room;
   const { questions, totalQuestions, difficulty, type, timeLimit } = quiz;
 
@@ -14,7 +14,7 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
 
   const quizQuestion = questions[currentQuestionIndex]?.text || ""; // Question actuelle
   const quizChoices = questions[currentQuestionIndex]?.choices || []; // Choix pour la question actuelle
-
+  const difficultyQuiz = difficultyTranslation[difficulty] || "Inconnu";
   useEffect(() => {
     if (quizStarted) {
       setSelectedChoice(null);
@@ -66,7 +66,7 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
       <div className="quiz-info">
         <p><strong>Type:</strong> {type}</p>
         <p><strong>Question:</strong> {currentQuestionIndex + 1} / {totalQuestions}</p>
-        <p><strong>Difficulté:</strong> {difficulty}</p>
+        <p><strong>Difficulté:</strong> {difficultyQuiz}</p>
       </div>
 
       <p className="quiz-question">{quizQuestion}</p>

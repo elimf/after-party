@@ -1,18 +1,12 @@
 import React from "react";
 import "../style/QuizResults.css"; // Import the CSS file for styling
+import { difficultyTranslation } from "../hooks/quizUtils"; // Import the difficultyTranslation object
 
 const QuizResults = ({ quiz }) => {
   const { totalQuestions, questions } = quiz;
   const questionType = questions[0].type;
   const totalPlayers = quiz.results.users.length;
   const difficultyQuiz = quiz.difficulty;
-
-  // Créer un objet pour la traduction
-  const difficultyTranslation = {
-    easy: "Facile",
-    medium: "Moyenne",
-    hard: "Difficile",
-  };
 
   // Obtenir la traduction en français
   const difficulty = difficultyTranslation[difficultyQuiz] || "Inconnu";

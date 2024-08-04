@@ -19,6 +19,7 @@ const RoomManager = ({
   const [questionCount, setQuestionCount] = useState('');
   const [difficulty, setDifficulty] = useState('');
   const [isPetitBacActive, setIsPetitBacActive] = useState(false); // État pour savoir si le Petit Bac est actif
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -33,6 +34,10 @@ const RoomManager = ({
       startQuiz(questionType, questionCount, difficulty);
       closeModal();
     }
+  };
+
+  const toggleChat = () => {
+    setIsCollapsed(prevState => !prevState);
   };
 
   const handleStartPetitBac = () => {
@@ -71,10 +76,12 @@ const RoomManager = ({
           </div>
         )}
       </div>
-      <div className="chat-section">
-        <Chat room={currentRoom} onSendMessage={sendMessage} />
+      <button className="toggle-chat-button btn btn-info" onClick={toggleChat}>
+        {isCollapsed ? 'Voir Chat' : 'Cacher le Chat'}
+      </button>
+      <div className={`chat-section ${isCollapsed ? 'collapsed' : ''}`}>
+        {!isCollapsed && <Chat room={currentRoom} onSendMessage={sendMessage} />}
       </div>
-
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -111,8 +118,10 @@ const RoomManager = ({
           <option value="hard">Difficile</option>
         </select>
 
-        <button onClick={handleStartQuiz} disabled={!questionType || !questionCount || !difficulty}>Commencer le Quiz</button>
-        <button onClick={closeModal}>Annuler</button>
+        <button onClick={handleStartQuiz} disabled={!questionType || !questionCount || !difficulty} className="btn btn-primary">
+          Commencer le Quiz
+        </button>
+        <button onClick={closeModal} className="btn btn-secondary">Annuler</button>
       </Modal>
     </div>
   );
