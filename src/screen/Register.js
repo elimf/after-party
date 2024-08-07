@@ -9,11 +9,10 @@ function Register() {
   const [username, setUsername] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  const apiUrl = process.env.REACT_APP_API_URL;
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simple validation
     if (!email || !password || !confirmPassword || !username) {
       setError("Tous les champs doivent être remplis.");
       return;
@@ -27,13 +26,11 @@ function Register() {
     }
 
     try {
-      // Remplacez l'URL ci-dessous par celle de votre API pour l'inscription
-      const response = await axios.post("http://localhost:3000/auth/register", {
+      const response = await axios.post(`${apiUrl}/auth/register`, {
         email,
         password,
         username,
       });
-      console.log(response.status);
 
       if (response.status === 201) {
         navigate("/login");
@@ -43,7 +40,7 @@ function Register() {
         setError("Inscription échouée");
       }
     } catch (err) {
-      setError("Inscription échouée : une erreur est survenue");
+        setError("Une erreur est survenue : "+err);
     }
   };
 
