@@ -1,30 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { toast } from 'react-toastify';
 import '../style/Connect.css';
+import { useAuth } from '../hooks/AuthContext';
 
 const Connect = ({ onConnect }) => {
-  const [name, setName] = useState('');
+  const token = localStorage.getItem('authToken')  
+  const { logout } = useAuth();
 
   const handleConnect = () => {
-    if (name.trim() === '') {
-      toast.error('Votre nom ne peut pas être vide');
+    if (!token) {
+      logout();
+      toast.error('Vous devez vous connecter pour accéder à cette page, vous allez être redirigé vers la page de connexion').then(() => {
+        window.location.href = '/login';
+      });
     } else {
-      onConnect(name);
+      onConnect(token);
     }
   };
 
   return (
     <div className="connect-container">
-      <h1 className="title">After Party</h1>
-      <input
-        type="text"
-        placeholder="Entrer votre nom"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="connect-input"
-      />
+    <h1 className="title">After Party</h1>
       <button onClick={handleConnect} className="connect-button">
-        Créer
+        Commencer
       </button>
     </div>
   );
