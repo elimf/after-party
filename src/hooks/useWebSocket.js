@@ -11,16 +11,25 @@ const useWebSocket = (url) => {
   const [quizStarted, setQuizStarted] = useState(false); // Indicateur si le quiz a démarré
   const socketRef = useRef(null);
 
-  const connectWebSocket = (name) => {
+  const connectWebSocket = (token) => {
     socketRef.current = new WebSocket(url);
 
     socketRef.current.onopen = () => {
-      socketRef.current.send(JSON.stringify({ type: "setName", name }));
+      socketRef.current.send(JSON.stringify({ type: "start", token }));
     };
 
     socketRef.current.onmessage = (event) => {
       const parsedMessage = JSON.parse(event.data);
-      const { type, message, info, rooms, users,room, correctAnswer } = parsedMessage;
+      const {
+        type,
+        message,
+        info,
+        rooms,
+        users,
+        room,
+        correctAnswer,
+        disconnect,
+      } = parsedMessage;
 
       switch (type) {
         case "system":
@@ -28,13 +37,17 @@ const useWebSocket = (url) => {
             setCurrentUser(info);
             setConnected(true);
             toast.success(message);
+          } else if (disconnect) {
+            toast.error(message);
+            localStorage.removeItem("authToken");
+            setConnected(false);
           } else {
             toast.info(message);
           }
           break;
-          case "currentUser":
-            setCurrentUser(info);
-            break;
+        case "currentUser":
+          setCurrentUser(info);
+          break;
         case "room":
           setCurrentRoom(room);
           break;
@@ -55,12 +68,11 @@ const useWebSocket = (url) => {
           toast.success("Le quiz est terminé. Scores mis à jour.");
           setQuizStarted(false);
           break;
-    
+
         default:
           break;
       }
     };
-    
 
     socketRef.current.onclose = () => {
       setCurrentRoom(null);
@@ -72,14 +84,25 @@ const useWebSocket = (url) => {
 
   const sendMessage = (message) => {
     if (socketRef.current && message) {
-      socketRef.current.send(JSON.stringify({ type: "message", message , user: currentUser.id , roomId: currentRoom.id}));
+      socketRef.current.send(
+        JSON.stringify({
+          type: "message",
+          message,
+          user: currentUser.id,
+          roomId: currentRoom.id,
+        })
+      );
     }
   };
 
   const createRoom = (roomName) => {
     if (socketRef.current && roomName) {
       socketRef.current.send(
-        JSON.stringify({ type: "createRoom", room: roomName, owner: currentUser.id })
+        JSON.stringify({
+          type: "createRoom",
+          room: roomName,
+          owner: currentUser.id,
+        })
       );
       toast.success(`Salle "${roomName}" créée!`);
     }
@@ -88,7 +111,11 @@ const useWebSocket = (url) => {
   const joinRoom = (roomId) => {
     if (socketRef.current && roomId) {
       socketRef.current.send(
-        JSON.stringify({ type: "joinRoom", roomId: roomId , user: currentUser.id})
+        JSON.stringify({
+          type: "joinRoom",
+          roomId: roomId,
+          user: currentUser.id,
+        })
       );
       toast.info("Rejoindre la salle...");
     }
@@ -96,14 +123,29 @@ const useWebSocket = (url) => {
 
   const leaveRoom = () => {
     if (socketRef.current) {
-      socketRef.current.send(JSON.stringify({ type: "leaveRoom" , user: currentUser.id , roomId: currentRoom.id}));
+      socketRef.current.send(
+        JSON.stringify({
+          type: "leaveRoom",
+          user: currentUser.id,
+          roomId: currentRoom.id,
+        })
+      );
       setCurrentRoom(null);
     }
   };
 
   const startQuiz = (typeQuestion, numberQuestion, difficulty) => {
     if (socketRef.current) {
-      socketRef.current.send(JSON.stringify({ type: "startQuiz", roomId: currentRoom.id, user: currentUser.id, typeQuestion: typeQuestion, numberQuestion: numberQuestion, difficulty: difficulty }));
+      socketRef.current.send(
+        JSON.stringify({
+          type: "startQuiz",
+          roomId: currentRoom.id,
+          user: currentUser.id,
+          typeQuestion: typeQuestion,
+          numberQuestion: numberQuestion,
+          difficulty: difficulty,
+        })
+      );
       toast.info("Quiz démarré!");
     }
   };
@@ -111,13 +153,15 @@ const useWebSocket = (url) => {
   const answerQuiz = (answerIndex) => {
     if (socketRef.current && answerIndex !== undefined) {
       const responseTime = Date.now() - answerTime; // Calcul du temps écoulé depuis le début de la question
-      socketRef.current.send(JSON.stringify({
-        type: "submitAnswer",
-        answer: answerIndex,
-        responseTime,
-        roomId: currentRoom.id,
-        user: currentUser.id
-      }));
+      socketRef.current.send(
+        JSON.stringify({
+          type: "submitAnswer",
+          answer: answerIndex,
+          responseTime,
+          roomId: currentRoom.id,
+          user: currentUser.id,
+        })
+      );
       setAnswerTime(0); // Réinitialiser le temps de réponse
     }
   };

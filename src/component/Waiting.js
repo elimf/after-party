@@ -1,20 +1,26 @@
-import React, { useState } from 'react';
-import Modal from 'react-modal';
-import '../style/Waiting.css';
+import React, { useState } from "react";
+import Modal from "react-modal";
+import "../style/Waiting.css";
 
-Modal.setAppElement('#root'); // Assurez-vous d'indiquer l'élément racine de votre application
+Modal.setAppElement("#root"); // Assurez-vous d'indiquer l'élément racine de votre application
 
-const RoomManager = ({ rooms, users, onCreateRoom, onJoinRoom,currentUser }) => {
-  const [room, setRoom] = useState('');
-  const [error, setError] = useState('');
+const RoomManager = ({
+  rooms,
+  users,
+  onCreateRoom,
+  onJoinRoom,
+  currentUser,
+}) => {
+  const [room, setRoom] = useState("");
+  const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleCreateRoom = () => {
-    if (room.trim() === '') {
-      setError('Le nom de la salle ne peut pas être vide');
+    if (room.trim() === "") {
+      setError("Le nom de la salle ne peut pas être vide");
     } else {
-      setError('');
+      setError("");
       onCreateRoom(room);
-      setRoom('');
+      setRoom("");
       closeModal();
     }
   };
@@ -29,7 +35,20 @@ const RoomManager = ({ rooms, users, onCreateRoom, onJoinRoom,currentUser }) => 
         <ul className="room-list">
           {rooms.map((room) => (
             <li key={room.id} className="room-list-item">
-              {room.name} <button onClick={() => onJoinRoom(room.id)}>Rejoindre la salle</button>
+              {room.name}{" "}
+              <button
+                className="
+    px-4 py-2
+    bg-blue-500 text-white
+    rounded-lg
+    hover:bg-blue-600
+    focus:outline-none focus:ring-2 focus:ring-blue-500
+    transition duration-300 ease-in-out
+  "
+                onClick={() => onJoinRoom(room.id)}
+              >
+                Rejoindre la salle
+              </button>
             </li>
           ))}
         </ul>
@@ -39,17 +58,16 @@ const RoomManager = ({ rooms, users, onCreateRoom, onJoinRoom,currentUser }) => 
       </div>
 
       <div className="user-list-section">
-  <h2>Utilisateurs Connectés</h2>
-  <ul className="user-list">
-  {users.map((user) => (
-    <li key={user.id} className="user-list-item">
-          <span className="status-indicator"></span>
-          {user.name}  <i>{user.id === currentUser.id ? `(Me)` : ""}</i> 
-        </li>
-      ))}
-  </ul>
-</div>
-
+        <h2>Utilisateurs Connectés</h2>
+        <ul className="user-list">
+          {users.map((user) => (
+            <li key={user.id} className="user-list-item">
+              <span className="status-indicator"></span>
+              {user.name} <i>{user.id === currentUser.id ? `(Me)` : ""}</i>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       <Modal
         isOpen={isModalOpen}
@@ -71,7 +89,7 @@ const RoomManager = ({ rooms, users, onCreateRoom, onJoinRoom,currentUser }) => 
           <button
             onClick={handleCreateRoom}
             className="create-room-button"
-            disabled={room.trim() === ''}
+            disabled={room.trim() === ""}
           >
             Créer une salle
           </button>
