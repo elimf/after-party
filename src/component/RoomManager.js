@@ -99,6 +99,7 @@ const RoomManager = ({
           <option value="Science">Science</option>
           <option value="Manga">Manga</option>
           <option value="Série/Films">Série/Films</option>
+          <option value="Blindtest">Blindtest</option>
         </select>
 
         <h2>Choisissez le nombre de questions</h2>
