@@ -36,22 +36,26 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
       }, 1000);
 
       // Gérer le lecteur audio
-      if (audioRef.current) {
-        audioRef.current.pause(); // Pause l'audio en cours
-        audioRef.current.currentTime = 0; // Réinitialise le temps de lecture
+      const audioElement = audioRef.current;
+      if (audioElement) {
+        audioElement.pause(); // Pause l'audio en cours
+        audioElement.currentTime = 0; // Réinitialise le temps de lecture
       }
 
       // Assurer que l'audio joue pour la question actuelle
       if (type === 'Blindtest' && mediaUrl) {
-        audioRef.current.src = mediaUrl;
-        audioRef.current.play();
+        if (audioElement) {
+          audioElement.src = mediaUrl;
+          audioElement.play();
+        }
       }
     }
 
     return () => {
       clearInterval(timerRef.current);
-      if (audioRef.current) {
-        audioRef.current.pause(); // Assurez-vous de stopper la lecture lorsque le composant se démonte
+      const audioElement = audioRef.current;
+      if (audioElement) {
+        audioElement.pause(); // Assurez-vous de stopper la lecture lorsque le composant se démonte
       }
     };
   }, [quizStarted, currentQuestionIndex, timeLimit, type, mediaUrl]);
