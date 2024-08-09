@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
-import Chat from "./Chat"; // Assurez-vous que ce chemin est correct
+import Chat from "./Chat";
 import QuizQuestion from "./QuizQuestion";
 import QuizResults from "./QuizResults";
 
@@ -11,17 +11,20 @@ const RoomManager = ({
   handleAnswerQuiz,
   quizStarted,
   sendMessage,
-  // startPetitBac // Ajoutez une nouvelle prop pour démarrer le Petit Bac
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [questionType, setQuestionType] = useState("");
   const [questionCount, setQuestionCount] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [isPetitBacActive, setIsPetitBacActive] = useState(false); // État pour savoir si le Petit Bac est actif
+  const [isPetitBacActive, setIsPetitBacActive] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isBlindtestModalOpen, setIsBlindtestModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  const openBlindtestModal = () => setIsBlindtestModalOpen(true);
+  const closeBlindtestModal = () => setIsBlindtestModalOpen(false);
 
   const handleStartQuiz = () => {
     if (questionType && questionCount && difficulty) {
@@ -30,12 +33,17 @@ const RoomManager = ({
     }
   };
 
+  const handleStartBlindtest = () => {
+    if (difficulty) {
+      startQuiz("Blindtest", questionCount, difficulty);
+      closeBlindtestModal();
+    }
+  };
+
   const toggleChat = () => setIsChatOpen((prevState) => !prevState);
 
   const handleStartPetitBac = () => {
-    // Assurez-vous que la fonction startPetitBac est définie pour démarrer le jeu du Petit Bac
-    // startPetitBac();
-    setIsPetitBacActive(true); // Marque le Petit Bac comme actif
+    setIsPetitBacActive(true);
   };
 
   return (
@@ -58,6 +66,12 @@ const RoomManager = ({
                 disabled
               >
                 Commencer le Petit Bac
+              </button>
+              <button
+                onClick={openBlindtestModal}
+                className="start-blindtest-button bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-200"
+              >
+                Commencer le Blindtest
               </button>
             </div>
           ) : null}
@@ -99,7 +113,7 @@ const RoomManager = ({
         {isChatOpen && <Chat room={currentRoom} onSendMessage={sendMessage} />}
       </div>
 
-      {/* Modal */}
+      {/* Modal Quiz */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -116,14 +130,13 @@ const RoomManager = ({
           className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
         >
           <option value="">Sélectionner</option>
-          <option value="all">Aléatoire</option>
+          <option value="Aléatoire">Aléatoire</option>
           <option value="Culture Générale">Culture Générale</option>
           <option value="Géographie">Géographie</option>
           <option value="Sport">Sport</option>
           <option value="Science">Science</option>
           <option value="Manga">Manga</option>
           <option value="Série/Films">Série/Films</option>
-          <option value="Blindtest">Blindtest</option>
         </select>
 
         <h2 className="text-2xl font-semibold mb-4">
@@ -165,6 +178,45 @@ const RoomManager = ({
           </button>
           <button
             onClick={closeModal}
+            className="btn btn-secondary bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200"
+          >
+            Annuler
+          </button>
+        </div>
+      </Modal>
+
+      {/* Modal Blindtest */}
+      <Modal
+        isOpen={isBlindtestModalOpen}
+        onRequestClose={closeBlindtestModal}
+        contentLabel="Choisir la difficulté pour le Blindtest"
+        className="modal max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg"
+        overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50"
+      >
+        <h2 className="text-2xl font-semibold mb-4">
+          Choisissez la difficulté pour le Blindtest
+        </h2>
+        <select
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value)}
+          className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
+        >
+          <option value="">Sélectionner</option>
+          <option value="easy">Facile</option>
+          <option value="medium">Moyenne</option>
+          <option value="hard">Difficile</option>
+        </select>
+
+        <div className="flex gap-4">
+          <button
+            onClick={handleStartBlindtest}
+            disabled={!difficulty}
+            className="btn btn-primary bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-200"
+          >
+            Commencer le Blindtest
+          </button>
+          <button
+            onClick={closeBlindtestModal}
             className="btn btn-secondary bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200"
           >
             Annuler
