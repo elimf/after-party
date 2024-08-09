@@ -21,10 +21,10 @@ const RoomManager = ({
   const [isBlindtestModalOpen, setIsBlindtestModalOpen] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {setIsModalOpen(false); setQuestionType(""); setQuestionCount(""); setDifficulty("")};
 
   const openBlindtestModal = () => setIsBlindtestModalOpen(true);
-  const closeBlindtestModal = () => setIsBlindtestModalOpen(false);
+  const closeBlindtestModal = () => {setIsBlindtestModalOpen(false); setQuestionCount(""); setDifficulty("")};
 
   const handleStartQuiz = () => {
     if (questionType && questionCount && difficulty) {
@@ -34,7 +34,7 @@ const RoomManager = ({
   };
 
   const handleStartBlindtest = () => {
-    if (difficulty) {
+    if (difficulty && questionCount) {
       startQuiz("Blindtest", questionCount, difficulty);
       closeBlindtestModal();
     }
@@ -193,6 +193,21 @@ const RoomManager = ({
         className="modal max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg"
         overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50"
       >
+      <h2 className="text-2xl font-semibold mb-4">
+          Choisissez le nombre de chansons pour le Blindtest
+        </h2>
+        <select
+          value={questionCount}
+          onChange={(e) => setQuestionCount(e.target.value)}
+          className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
+        >
+          <option value="">Sélectionner</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+
         <h2 className="text-2xl font-semibold mb-4">
           Choisissez la difficulté pour le Blindtest
         </h2>
