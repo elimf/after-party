@@ -5,6 +5,7 @@ import { AuthProvider } from "./hooks/AuthContext";
 import MainPage from "./screen/MainPage";
 import Login from "./screen/Login";
 import Register from "./screen/Register";
+import NotFound from "./screen/NotFound";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<ProtectedRoute element={<MainPage />} />} />
         <Route path="/register" element={<Register />} />
+        <Route path="*" element={<NotFound/>} />
       </Routes>
     </BrowserRouter>
     </AuthProvider>

@@ -1,5 +1,5 @@
 import React from "react";
-import { difficultyTranslation } from "../hooks/quizUtils"; // Importer l'objet difficultyTranslation
+import { difficultyTranslation } from "../utils/quizUtils"; // Importer l'objet difficultyTranslation
 
 const QuizResults = ({ quiz }) => {
   const { totalQuestions, type } = quiz;

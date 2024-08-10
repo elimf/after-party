@@ -30,3 +30,29 @@ body {
   border-radius: 5px;
   cursor: pointer;
 }
+@import url('https://fonts.googleapis.com/css?family=Alfa+Slab+One|Josefin+Slab');
+
+@keyframes darken {
+  0%{ font-size: 100px;  color:#566573;}
+  50%{font-size: 200px; color:#273746}
+  100% {font-size: 250px; color:#f0db4f}
+}
+  
+
+h3 {
+  font-family: 'Alfa Slab One', cursive;
+  margin: 0 auto;
+  inline: block;
+  text-align: center;
+  animation-name: darken;
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+}
+
+h6 {
+  font-family: 'Josefin Slab', serif;
+  margin: 0 auto;
+  inline: block;
+  text-align: center;
+  font-size: 30px;
+}

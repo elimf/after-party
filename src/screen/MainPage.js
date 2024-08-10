@@ -78,14 +78,14 @@ const MainPage = () => {
       </div>
       <ToastContainer
         position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
+        autoClose={1000}
+        hideProgressBar={true}
         newestOnTop={false}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
-        pauseOnHover
+        pauseOnHover={false}
       />
     </div>
   );

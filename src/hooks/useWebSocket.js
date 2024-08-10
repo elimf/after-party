@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "./AuthContext";
 import { toast } from "react-toastify";
 
 const useWebSocket = (url) => {
@@ -10,7 +11,7 @@ const useWebSocket = (url) => {
   const [answerTime, setAnswerTime] = useState(0); // Temps de réponse
   const [quizStarted, setQuizStarted] = useState(false); // Indicateur si le quiz a démarré
   const socketRef = useRef(null);
-
+  const { logout } = useAuth();
   const connectWebSocket = (token) => {
     socketRef.current = new WebSocket(url);
 
@@ -104,7 +105,6 @@ const useWebSocket = (url) => {
           owner: currentUser.id,
         })
       );
-      toast.success(`Salle "${roomName}" créée!`);
     }
   };
 
@@ -117,7 +117,6 @@ const useWebSocket = (url) => {
           user: currentUser.id,
         })
       );
-      toast.info("Rejoindre la salle...");
     }
   };
 
@@ -146,7 +145,7 @@ const useWebSocket = (url) => {
           difficulty: difficulty,
         })
       );
-      toast.info("Quiz démarré!");
+      toast.info("Quiz va démarrer!");
     }
   };
 
@@ -168,6 +167,7 @@ const useWebSocket = (url) => {
 
   const disconnectWebSocket = () => {
     if (socketRef.current) {
+      logout();
       socketRef.current.close();
     }
   };

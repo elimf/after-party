@@ -29,7 +29,6 @@ function Login() {
           'Accept': 'application/json',       // Specify the expected response type
         }
       });
-      console.log(response);
 
       if (response.data.token) {
         // Stockez le token dans le stockage local ou un autre mécanisme de stockage
