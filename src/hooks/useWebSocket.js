@@ -13,75 +13,85 @@ const useWebSocket = (url) => {
   const socketRef = useRef(null);
   const { logout } = useAuth();
   const connectWebSocket = (token) => {
-    socketRef.current = new WebSocket(url);
+    try {
+        socketRef.current = new WebSocket(url);
 
-    socketRef.current.onopen = () => {
-      socketRef.current.send(JSON.stringify({ type: "start", token }));
-    };
+        socketRef.current.onopen = () => {
+            socketRef.current.send(JSON.stringify({ type: "start", token }));
+        };
 
-    socketRef.current.onmessage = (event) => {
-      const parsedMessage = JSON.parse(event.data);
-      const {
-        type,
-        message,
-        info,
-        rooms,
-        users,
-        room,
-        correctAnswer,
-        disconnect,
-      } = parsedMessage;
+        socketRef.current.onmessage = (event) => {
+            const parsedMessage = JSON.parse(event.data);
+            const {
+                type,
+                message,
+                info,
+                rooms,
+                users,
+                room,
+                correctAnswer,
+                disconnect,
+            } = parsedMessage;
 
-      switch (type) {
-        case "system":
-          if (message.includes("Bienvenue") && info) {
-            setCurrentUser(info);
-            setConnected(true);
-            toast.success(message);
-          } else if (disconnect) {
-            toast.error(message);
-            localStorage.removeItem("authToken");
+            switch (type) {
+                case "system":
+                    if (message.includes("Bienvenue") && info) {
+                        setCurrentUser(info);
+                        setConnected(true);
+                        toast.success(message);
+                    } else if (disconnect) {
+                        toast.error(message);
+                        localStorage.removeItem("authToken");
+                        setConnected(false);
+                    } else {
+                        toast.info(message);
+                    }
+                    break;
+                case "currentUser":
+                    setCurrentUser(info);
+                    break;
+                case "room":
+                    setCurrentRoom(room);
+                    break;
+                case "rooms":
+                    setRooms(rooms);
+                    break;
+                case "users":
+                    setUsers(users);
+                    break;
+                case "question":
+                    setQuizStarted(true);
+                    setAnswerTime(Date.now());
+                    break;
+                case "answer":
+                    toast.info(`Réponse correcte : ${correctAnswer}`);
+                    break;
+                case "endQuiz":
+                    toast.success("Le quiz est terminé. Scores mis à jour.");
+                    setQuizStarted(false);
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        socketRef.current.onerror = (error) => {
+            console.error("Erreur WebSocket:", error);
+            toast.error("Une erreur est survenue lors de la connexion au serveur.");
+        };
+
+        socketRef.current.onclose = (event) => {
+            console.warn(`WebSocket fermé avec le code : ${event.code}, raison : ${event.reason}`);
+            setCurrentRoom(null);
+            setCurrentUser(null);
             setConnected(false);
-          } else {
-            toast.info(message);
-          }
-          break;
-        case "currentUser":
-          setCurrentUser(info);
-          break;
-        case "room":
-          setCurrentRoom(room);
-          break;
-        case "rooms":
-          setRooms(rooms);
-          break;
-        case "users":
-          setUsers(users);
-          break;
-        case "question":
-          setQuizStarted(true);
-          setAnswerTime(Date.now());
-          break;
-        case "answer":
-          toast.info(`Réponse correcte : ${correctAnswer}`);
-          break;
-        case "endQuiz":
-          toast.success("Le quiz est terminé. Scores mis à jour.");
-          setQuizStarted(false);
-          break;
-
-        default:
-          break;
-      }
-    };
-
-    socketRef.current.onclose = () => {
-      setCurrentRoom(null);
-      setCurrentUser(null);
-      setConnected(false);
-      toast.error("Déconnexion");
-    };
-  };
+            toast.error("Déconnexion");
+        };
+    } catch (error) {
+        console.error("Exception lors de l'initialisation du WebSocket :", error);
+        toast.error("Impossible de se connecter au serveur WebSocket.");
+    }
+};
 
   const sendMessage = (message) => {
     if (socketRef.current && message) {
