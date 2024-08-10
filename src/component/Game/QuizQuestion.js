@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
-import { difficultyTranslation } from "../utils/quizUtils";
+import { difficultyTranslation } from "../../utils/quizUtils";
 
 const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
   const { quiz, currentQuestionIndex } = room;

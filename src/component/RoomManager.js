@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
 import Chat from "./Chat";
-import QuizQuestion from "./QuizQuestion";
-import QuizResults from "./QuizResults";
+import QuizQuestion from "./Game/QuizQuestion";
+import QuizResults from "./Game/QuizResults";
 
 const RoomManager = ({
   currentRoom,
