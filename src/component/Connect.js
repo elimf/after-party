@@ -1,14 +1,16 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../hooks/AuthContext';
+import { useNavigate} from "react-router-dom"; 
 
 const Connect = ({ onConnect }) => {
   const token = localStorage.getItem('authToken');  
   const { logout } = useAuth();
-
+  const navigate = useNavigate();
   const handleConnect = () => {
     if (!token) {
       logout();
+      navigate('/login');
       toast.error('Vous devez vous connecter pour accéder à cette page, vous allez être redirigé vers la page de connexion').then(() => {
         window.location.href = '/login';
       });
@@ -27,7 +29,7 @@ const Connect = ({ onConnect }) => {
           onClick={handleConnect}
           className="bg-blue-500 text-white text-xl py-4 px-8 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200"
         >
-          Commencer
+          Connexion à After Party
         </button>
       </div>
     </div>
