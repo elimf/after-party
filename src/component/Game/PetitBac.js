@@ -4,6 +4,7 @@ const PetitBac = ({ room, onSubmit }) => {
   const [timeLeft, setTimeLeft] = useState(room.bacGame.timeLimit); // timeLimit en millisecondes
   const [localResponses, setLocalResponses] = useState({});
   const [errors, setErrors] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false); // État pour vérifier si la soumission a été faite
   const currentLetter = room.bacGame.currentLetter;
 
   // Gérer le compte à rebours
@@ -14,7 +15,7 @@ const PetitBac = ({ room, onSubmit }) => {
           return prev - 1000; // Réduire de 1000ms (1 seconde) chaque intervalle
         } else {
           clearInterval(timer);
-          handleSubmit(); // Soumettre automatiquement lorsque le temps est écoulé
+          if (!isSubmitted) handleSubmit(true); // Soumettre automatiquement si le temps est écoulé (isAutoSubmit = true)
           return 0;
         }
       });
@@ -22,6 +23,15 @@ const PetitBac = ({ room, onSubmit }) => {
 
     return () => clearInterval(timer); // Nettoyage à la fin du composant ou du timer
   },);
+
+  // Écoute les mises à jour de room.bacGame.timeLimit
+  useEffect(() => {
+    if (room.bacGame.timeLimit === 0) {
+      if (!isSubmitted) handleSubmit(true); // Soumettre automatiquement si le temps est écoulé
+    } else {
+      setTimeLeft(room.bacGame.timeLimit); // Met à jour le temps restant si timeLimit change
+    }
+  }, [room.bacGame.timeLimit]);
 
   const handleChange = (category, value) => {
     setLocalResponses((prev) => ({
@@ -37,26 +47,40 @@ const PetitBac = ({ room, onSubmit }) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (isAutoSubmit = false) => {
+    if (isSubmitted) return; // Ne pas soumettre si déjà soumis
+
     const newErrors = {};
     const validatedResponses = {};
 
     room.bacGame.categories.forEach((category) => {
       const response = localResponses[category] || "";
-      
+
       if (!response) {
         newErrors[category] = `Le champ "${category}" ne peut pas être vide.`;
       } else if (!response.startsWith(currentLetter)) {
-        newErrors[category] = `La réponse pour "${category}" doit commencer par "${currentLetter}".`;
+        if (!isAutoSubmit) {
+          newErrors[category] = `La réponse pour "${category}" doit commencer par "${currentLetter}".`;
+        }
       } else {
         validatedResponses[category] = response;
       }
     });
 
-    if (Object.keys(newErrors).length > 0) {
+    if (isAutoSubmit) {
+      // Pour les soumissions automatiques, vider les catégories incorrectes
+      Object.keys(localResponses).forEach((category) => {
+        if (!localResponses[category].startsWith(currentLetter)) {
+          validatedResponses[category] = ""; // Vider les réponses incorrectes
+        }
+      });
+    }
+
+    if (Object.keys(newErrors).length > 0 && !isAutoSubmit) {
       setErrors(newErrors);
     } else {
-      onSubmit(validatedResponses);
+      setIsSubmitted(true); // Marquer comme soumis
+      onSubmit(validatedResponses, isAutoSubmit); // Envoyer les réponses avec l'information sur le type de soumission
     }
   };
 
@@ -65,6 +89,17 @@ const PetitBac = ({ room, onSubmit }) => {
     const minutes = Math.floor(time / 60000);
     const seconds = Math.floor((time % 60000) / 1000);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
+  // Déterminer la classe du bouton en fonction des états
+  const buttonClass = () => {
+    if (isSubmitted) {
+      return "bg-gray-500 hover:bg-gray-600"; // Couleur pour le bouton après soumission
+    }
+    if (timeLeft <= 0) {
+      return "bg-red-500 hover:bg-red-600"; // Couleur pour le bouton lorsque le chronomètre est arrêté
+    }
+    return "bg-green-500 hover:bg-green-600"; // Couleur pour le bouton par défaut
   };
 
   return (
@@ -104,10 +139,11 @@ const PetitBac = ({ room, onSubmit }) => {
         ))}
       </div>
       <button
-        onClick={handleSubmit}
-        className="submit-button bg-green-500 text-white py-2 px-4 rounded-lg mt-4 hover:bg-green-600 w-full md:w-auto"
+        onClick={() => handleSubmit(false)} // handleSubmit(false) est utilisé pour la soumission manuelle
+        className={`submit-button text-white py-2 px-4 rounded-lg mt-4 w-full md:w-auto ${buttonClass()}`}
+        disabled={isSubmitted} // Désactiver le bouton après soumission
       >
-        Soumettre
+        {isSubmitted ? "Réponses envoyées" : timeLeft <= 0 ? "Temps écoulé" : "Soumettre"}
       </button>
     </div>
   );

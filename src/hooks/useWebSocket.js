@@ -14,85 +14,90 @@ const useWebSocket = (url) => {
   const { logout } = useAuth();
   const connectWebSocket = (token) => {
     try {
-        socketRef.current = new WebSocket(url);
+      socketRef.current = new WebSocket(url);
 
-        socketRef.current.onopen = () => {
-            socketRef.current.send(JSON.stringify({ type: "start", token }));
-        };
+      socketRef.current.onopen = () => {
+        socketRef.current.send(JSON.stringify({ type: "start", token }));
+      };
 
-        socketRef.current.onmessage = (event) => {
-            const parsedMessage = JSON.parse(event.data);
-            console.log("Message reçu :", parsedMessage);
-            const {
-                type,
-                message,
-                info,
-                rooms,
-                users,
-                room,
-                correctAnswer,
-                disconnect,
-            } = parsedMessage;
-            
-            switch (type) {
-                case "system":
-                    if (message.includes("Bienvenue") && info) {
-                        setCurrentUser(info);
-                        setConnected(true);
-                        toast.success(message);
-                    } else if (disconnect) {
-                        toast.error(message);
-                        localStorage.removeItem("authToken");
-                        setConnected(false);
-                    } else {
-                        toast.info(message);
-                    }
-                    break;
-                case "currentUser":
-                    setCurrentUser(info);
-                    break;
-                case "room":
-                    setCurrentRoom(room);
-                    break;
-                case "rooms":
-                    setRooms(rooms);
-                    break;
-                case "users":
-                    setUsers(users);
-                    break;
-                case "question":
-                    setQuizStarted(true);
-                    setAnswerTime(Date.now());
-                    break;
-                case "answer":
-                    toast.info(`Réponse correcte : ${correctAnswer}`);
-                    break;
-                case "endQuiz":
-                    toast.success("Le quiz est terminé. Scores mis à jour.");
-                    setQuizStarted(false);
-                    break;
-                default:
-                    break;
+      socketRef.current.onmessage = (event) => {
+        const parsedMessage = JSON.parse(event.data);
+        console.log("Message reçu :", parsedMessage);
+        const {
+          type,
+          message,
+          info,
+          rooms,
+          users,
+          room,
+          correctAnswer,
+          disconnect,
+        } = parsedMessage;
+
+        switch (type) {
+          case "system":
+            if (message.includes("Bienvenue") && info) {
+              setCurrentUser(info);
+              setConnected(true);
+              toast.success(message);
+            } else if (disconnect) {
+              toast.error(message);
+              localStorage.removeItem("authToken");
+              setConnected(false);
+            } else if (message.includes("Un utilisateur a terminé! Vos réponses vont être collectées.")) {
+              console.log(room);
+              setCurrentRoom(room);
+            } else {
+              toast.info(message);
             }
-        };
+            break;
+          case "currentUser":
+            setCurrentUser(info);
+            break;
+          case "room":
+            setCurrentRoom(room);
+            break;
+          case "rooms":
+            setRooms(rooms);
+            break;
+          case "users":
+            setUsers(users);
+            break;
+          case "question":
+            setQuizStarted(true);
+            setAnswerTime(Date.now());
+            break;
+          case "answer":
+            toast.info(`Réponse correcte : ${correctAnswer}`);
+            break;
+          case "endQuiz":
+            toast.success("Le quiz est terminé. Scores mis à jour.");
+            setQuizStarted(false);
+            break;
+          default:
+            break;
+        }
+      };
 
-        socketRef.current.onerror = (error) => {
-            console.error("Erreur WebSocket:", error);
-            toast.error("Une erreur est survenue lors de la connexion au serveur.");
-        };
+      socketRef.current.onerror = (error) => {
+        console.error("Erreur WebSocket:", error);
+        toast.error("Une erreur est survenue lors de la connexion au serveur.");
+      };
 
-        socketRef.current.onclose = (event) => {
-            console.warn(`WebSocket fermé avec le code : ${event.code}, raison : ${event.reason}`);
-            setCurrentRoom(null);
-            setCurrentUser(null);
-            setConnected(false);
-            toast.error("Déconnexion");
-        };
+      socketRef.current.onclose = (event) => {
+        console.warn(
+          `WebSocket fermé avec le code : ${event.code}, raison : ${event.reason}`
+        );
+        setCurrentRoom(null);
+        setCurrentUser(null);
+        setConnected(false);
+        toast.error("Déconnexion");
+      };
     } catch (error) {
-        console.error("Exception lors de l'initialisation du WebSocket :", error);
-        toast.error("Impossible de se connecter au serveur WebSocket.");
+      console.error("Exception lors de l'initialisation du WebSocket :", error);
+      toast.error("Impossible de se connecter au serveur WebSocket.");
     }
-};
+  };
 
   const sendMessage = (message) => {
     if (socketRef.current && message) {
@@ -187,18 +192,19 @@ const useWebSocket = (url) => {
       );
     }
   };
-  const submitBacResponses = (responses) => {
+  const submitBacResponses = (responses, autoSubmit) => {
     if (socketRef.current) {
       socketRef.current.send(
         JSON.stringify({
           type: "submitBacResponse",
           roomId: currentRoom.id,
           user: currentUser.id,
-          responses: responses,
+          responses,
+          autoSubmit,
         })
       );
     }
-  }
+  };
 
   const disconnectWebSocket = () => {
     if (socketRef.current) {

@@ -4,6 +4,7 @@ import QuizQuestion from "./Game/QuizQuestion";
 import QuizResults from "./Game/QuizResults";
 import PetitBac from "./Game/PetitBac";
 import GameModal from "./GameModal";
+import VoteComponent from "./Game/VoteComponent";
 
 const RoomManager = ({
   currentRoom,
@@ -28,6 +29,7 @@ const RoomManager = ({
   const isQuizRunning = currentRoom.quiz?.isRunning;
   const isBacGameRunning = currentRoom.bacGame?.isRunning;
   const showQuizResults = !quizStarted && !isQuizRunning && !isBacGameRunning && currentRoom.quiz?.results;
+  const isBacGameVoting = currentRoom.bacGame?.isVoting;
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -105,6 +107,15 @@ const RoomManager = ({
               />
             </div>
           )}
+          {isBacGameVoting && (
+            <div className="bac-vote-section bg-gray-100 p-4 rounded-lg shadow-md">
+              <VoteComponent
+                room={currentRoom}
+                onVoteSubmit={submitBacResponses}
+              />
+            </div>
+          )}
+          
         </div>
       </div>
 
