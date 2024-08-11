@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import Modal from "react-modal";
 import Chat from "./Chat";
 import QuizQuestion from "./Game/QuizQuestion";
 import QuizResults from "./Game/QuizResults";
+import PetitBac from "./Game/PetitBac";
+import GameModal from "./GameModal";
 
 const RoomManager = ({
   currentRoom,
@@ -11,20 +12,24 @@ const RoomManager = ({
   handleAnswerQuiz,
   quizStarted,
   sendMessage,
+  startBacGame,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBlindtestModalOpen, setIsBlindtestModalOpen] = useState(false);
+  const [isPetitBacModalOpen, setIsPetitBacModalOpen] = useState(false);
   const [questionType, setQuestionType] = useState("");
   const [questionCount, setQuestionCount] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [isPetitBacActive, setIsPetitBacActive] = useState(false);
+  const [timeLimit, setTimeLimit] = useState(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isBlindtestModalOpen, setIsBlindtestModalOpen] = useState(false);
-
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => {setIsModalOpen(false); setQuestionType(""); setQuestionCount(""); setDifficulty("")};
+  const closeModal = () => setIsModalOpen(false);
 
   const openBlindtestModal = () => setIsBlindtestModalOpen(true);
-  const closeBlindtestModal = () => {setIsBlindtestModalOpen(false); setQuestionCount(""); setDifficulty("")};
+  const closeBlindtestModal = () => setIsBlindtestModalOpen(false);
+
+  const openPetitBacModal = () => setIsPetitBacModalOpen(true);
+  const closePetitBacModal = () => setIsPetitBacModalOpen(false);
 
   const handleStartQuiz = () => {
     if (questionType && questionCount && difficulty) {
@@ -43,8 +48,10 @@ const RoomManager = ({
   const toggleChat = () => setIsChatOpen((prevState) => !prevState);
 
   const handleStartPetitBac = () => {
-    setIsPetitBacActive(true);
+    startBacGame(timeLimit);
+    closePetitBacModal();
   };
+console.log(currentRoom);
 
   return (
     <div className="relative min-h-screen flex">
@@ -52,7 +59,7 @@ const RoomManager = ({
         <div className="flex flex-col gap-4">
           {currentRoom.ownerId === currentUser.id &&
           !currentRoom.quiz.isRunning &&
-          !isPetitBacActive ? (
+          !currentRoom.bacGame.isRunning ? (
             <div className="buttons-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={openModal}
@@ -61,9 +68,8 @@ const RoomManager = ({
                 Commencer le Quiz
               </button>
               <button
-                onClick={handleStartPetitBac}
-                className="start-petitbac-button bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
-                disabled
+                onClick={openPetitBacModal}
+                className="start-petitbac-button bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200"
               >
                 Commencer le Petit Bac
               </button>
@@ -75,7 +81,7 @@ const RoomManager = ({
               </button>
             </div>
           ) : null}
-          {quizStarted && !isPetitBacActive ? (
+          {quizStarted && !currentRoom.bacGame.isRunning ? (
             <QuizQuestion
               room={currentRoom}
               answerQuiz={handleAnswerQuiz}
@@ -84,21 +90,24 @@ const RoomManager = ({
           ) : null}
           {!quizStarted &&
           !currentRoom.quiz.isRunning &&
-          !isPetitBacActive &&
+          !currentRoom.bacGame.isRunning &&
           currentRoom.quiz.results ? (
             <QuizResults quiz={currentRoom.quiz} />
           ) : null}
-          {isPetitBacActive && (
+          {currentRoom.bacGame.isRunning && (
             <div className="petit-bac-section bg-gray-100 p-4 rounded-lg shadow-md">
-              {/* Contenu du jeu du Petit Bac ici */}
-              <p className="text-lg font-medium">
-                Le jeu du Petit Bac est en cours...
-              </p>
+              <PetitBac
+                letter={currentRoom.bacGame.currentLetter}
+                categories={currentRoom.bacGame.categories}
+                responses={() => {}}
+                setResponses={() => {}}
+                onSubmit={() => {}}
+              />
             </div>
           )}
         </div>
       </div>
-      {/* Chat Section */}
+
       <div
         className={`fixed top-0 right-0 bg-gray-800 text-white w-100 h-full transform transition-transform ${
           isChatOpen ? "translate-x-0" : "translate-x-full"
@@ -114,130 +123,120 @@ const RoomManager = ({
       </div>
 
       {/* Modal Quiz */}
-      <Modal
+      <GameModal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
-        contentLabel="Sélectionner le type, le nombre de questions et la difficulté"
-        className="modal max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg"
-        overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50"
-      >
-        <h2 className="text-2xl font-semibold mb-4">
-          Choisissez le type de question
-        </h2>
-        <select
-          value={questionType}
-          onChange={(e) => setQuestionType(e.target.value)}
-          className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
-        >
-          <option value="">Sélectionner</option>
-          <option value="Aléatoire">Aléatoire</option>
-          <option value="Culture Générale">Culture Générale</option>
-          <option value="Géographie">Géographie</option>
-          <option value="Sport">Sport</option>
-          <option value="Science">Science</option>
-          <option value="Manga">Manga</option>
-          <option value="Série/Films">Série/Films</option>
-        </select>
-
-        <h2 className="text-2xl font-semibold mb-4">
-          Choisissez le nombre de questions
-        </h2>
-        <select
-          value={questionCount}
-          onChange={(e) => setQuestionCount(e.target.value)}
-          className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
-        >
-          <option value="">Sélectionner</option>
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
-        </select>
-
-        <h2 className="text-2xl font-semibold mb-4">
-          Choisissez la difficulté
-        </h2>
-        <select
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
-          className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
-        >
-          <option value="">Sélectionner</option>
-          <option value="easy">Facile</option>
-          <option value="medium">Moyenne</option>
-          <option value="hard">Difficile</option>
-        </select>
-
-        <div className="flex gap-4">
-          <button
-            onClick={handleStartQuiz}
-            disabled={!questionType || !questionCount || !difficulty}
-            className="btn btn-primary bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
-          >
-            Commencer le Quiz
-          </button>
-          <button
-            onClick={closeModal}
-            className="btn btn-secondary bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200"
-          >
-            Annuler
-          </button>
-        </div>
-      </Modal>
+        title="Quiz"
+        options={[
+          {
+            label: "Choisissez le type de question",
+            choices: [
+              { value: "Aléatoire", label: "Aléatoire" },
+              { value: "Culture Générale", label: "Culture Générale" },
+              { value: "Géographie", label: "Géographie" },
+              { value: "Sport", label: "Sport" },
+              { value: "Science", label: "Science" },
+              { value: "Manga", label: "Manga" },
+              { value: "Série/Films", label: "Série/Films" },
+            ],
+          },
+          {
+            label: "Choisissez le nombre de questions",
+            choices: [
+              { value: "5", label: "5" },
+              { value: "10", label: "10" },
+              { value: "15", label: "15" },
+              { value: "20", label: "20" },
+            ],
+          },
+          {
+            label: "Choisissez la difficulté",
+            choices: [
+              { value: "easy", label: "Facile" },
+              { value: "medium", label: "Moyenne" },
+              { value: "hard", label: "Difficile" },
+            ],
+          },
+        ]}
+        values={[questionType, questionCount, difficulty]}
+        setValues={(index, value) => {
+          const setters = [setQuestionType, setQuestionCount, setDifficulty];
+          setters[index](value);
+        }}
+        onStart={handleStartQuiz}
+        startButtonText="Commencer le Quiz"
+        disableStartButton={!questionType || !questionCount || !difficulty}
+      />
 
       {/* Modal Blindtest */}
-      <Modal
+      <GameModal
         isOpen={isBlindtestModalOpen}
         onRequestClose={closeBlindtestModal}
-        contentLabel="Choisir la difficulté pour le Blindtest"
-        className="modal max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg"
-        overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50"
-      >
-      <h2 className="text-2xl font-semibold mb-4">
-          Choisissez le nombre de chansons pour le Blindtest
-        </h2>
-        <select
-          value={questionCount}
-          onChange={(e) => setQuestionCount(e.target.value)}
-          className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
-        >
-          <option value="">Sélectionner</option>
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="15">15</option>
-          <option value="20">20</option>
-        </select>
+        title="Blindtest"
+        options={[
+          {
+            label: "Choisissez le nombre de chansons pour le Blindtest",
+            choices: [
+              { value: "5", label: "5" },
+              { value: "10", label: "10" },
+              { value: "15", label: "15" },
+              { value: "20", label: "20" },
+            ],
+          },
+          {
+            label: "Choisissez la difficulté pour le Blindtest",
+            choices: [
+              { value: "easy", label: "Facile" },
+              { value: "medium", label: "Moyenne" },
+              { value: "hard", label: "Difficile" },
+            ],
+          },
+        ]}
+        values={[questionCount, difficulty]}
+        setValues={(index, value) => {
+          const setters = [setQuestionCount, setDifficulty];
+          setters[index](value);
+        }}
+        onStart={handleStartBlindtest}
+        startButtonText="Commencer le Blindtest"
+        disableStartButton={!difficulty || !questionCount}
+      />
 
-        <h2 className="text-2xl font-semibold mb-4">
-          Choisissez la difficulté pour le Blindtest
-        </h2>
-        <select
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
-          className="mb-4 p-2 border border-gray-300 rounded-lg w-full"
-        >
-          <option value="">Sélectionner</option>
-          <option value="easy">Facile</option>
-          <option value="medium">Moyenne</option>
-          <option value="hard">Difficile</option>
-        </select>
+      {/* Modal Petit Bac */}
+      <GameModal
+        isOpen={isPetitBacModalOpen}
+        onRequestClose={closePetitBacModal}
+        title="Petit Bac"
+        options={[
+          {
+            label: "Sélectionnez une durée",
+            choices: [
+              { value: 180000, label: "3min" },
+              { value: 240000, label: "4min" },
+              { value: 300000, label: "5min" },
+              { value: 360000, label: "6min" },
+              { value: 420000, label: "7min" },
+              { value: 480000, label: "8min" },
+              { value: 540000, label: "9min" },
+              { value: 600000, label: "10min" },
+              { value: 660000, label: "11min" },
+              { value: 720000, label: "12min" },
+              { value: 780000, label: "13min" },
+              { value: 840000, label: "14min" },
+              { value: 900000, label: "15min" },
 
-        <div className="flex gap-4">
-          <button
-            onClick={handleStartBlindtest}
-            disabled={!difficulty}
-            className="btn btn-primary bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-200"
-          >
-            Commencer le Blindtest
-          </button>
-          <button
-            onClick={closeBlindtestModal}
-            className="btn btn-secondary bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200"
-          >
-            Annuler
-          </button>
-        </div>
-      </Modal>
+            ],
+          },
+        ]}
+        values={[timeLimit]}
+        setValues={(index, value) => {
+          const setters = [setTimeLimit];
+          setters[index](value);
+        }}
+        onStart={handleStartPetitBac}
+        startButtonText="Commencer "
+        disableStartButton={!timeLimit}
+      />
     </div>
   );
 };

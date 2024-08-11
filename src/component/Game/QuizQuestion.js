@@ -76,7 +76,7 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
   };
 
   if (!quizQuestion) {
-    return <div>Aucune question disponible pour le moment.</div>;
+    return;
   }
 
   return (
@@ -115,7 +115,7 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
           ))}
         </div>
         <div className="mt-4 text-center">
-          <span className={`text-lg ${isTimeUp ? 'text-red-500' : 'text-gray-700'}`}>Temps restant: {timeLeft}s</span>
+          <span className={`text-lg ${isTimeUp ? 'text-gray-700':'text-red-500'}`}>Temps restant: {timeLeft}s</span>
         </div>
         <button
           onClick={handleSubmit}
