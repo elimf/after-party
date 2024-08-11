@@ -21,7 +21,7 @@ const PetitBac = ({ room, onSubmit }) => {
     }, 1000);
 
     return () => clearInterval(timer); // Nettoyage à la fin du composant ou du timer
-  }, []);
+  },);
 
   const handleChange = (category, value) => {
     setLocalResponses((prev) => ({
