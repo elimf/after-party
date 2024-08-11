@@ -77,13 +77,15 @@ const RoomManager = ({
               </button>
               <button
                 onClick={openPetitBacModal}
-                className="start-petitbac-button bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200"
+                className="start-petitbac-button bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled
               >
                 Commencer le Petit Bac
               </button>
               <button
                 onClick={openBlindtestModal}
                 className="start-blindtest-button bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-200"
+                disabled
               >
                 Commencer le Blindtest
               </button>
