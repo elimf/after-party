@@ -8,9 +8,12 @@ const Waiting = ({ rooms, users, onCreateRoom, onJoinRoom, currentUser }) => {
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  console.log(rooms);
+
   useEffect(() => {
     // Vérifie si `rooms` est vide ou si l'utilisateur actuel est propriétaire d'une salle
-    const isUserOwner = rooms.length > 0 && rooms.some(room => room.ownerId === currentUser.id);
+    const isUserOwner =
+      rooms.length > 0 && rooms.some((room) => room.ownerId === currentUser.id);
     // Désactiver le bouton si `rooms` n'est pas vide et l'utilisateur n'est pas propriétaire
     setIsButtonDisabled(!isUserOwner);
   }, [rooms, currentUser.id]);
@@ -43,8 +46,19 @@ const Waiting = ({ rooms, users, onCreateRoom, onJoinRoom, currentUser }) => {
             >
               <span className="font-medium text-lg">{room.name}</span>
               <button
-                className="mt-2 sm:mt-0 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+                className={`mt-2 sm:mt-0 px-4 py-2 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 ${
+                  room.quiz?.isRunning ||
+                  room.bacGame?.isRunning ||
+                  room.bacGame?.isVoting
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed" // Style pour bouton désactivé
+                    : "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500" // Style pour bouton actif
+                }`}
                 onClick={() => onJoinRoom(room.id)}
+                disabled={
+                  room.quiz?.isRunning ||
+                  room.bacGame?.isRunning ||
+                  room.bacGame?.isVoting
+                }
               >
                 Rejoindre la salle
               </button>

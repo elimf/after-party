@@ -85,7 +85,6 @@ const RoomManager = ({
               <button
                 onClick={openBlindtestModal}
                 className="start-blindtest-button bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-200"
-                disabled
               >
                 Commencer le Blindtest
               </button>
