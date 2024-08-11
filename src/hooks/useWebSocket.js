@@ -22,6 +22,7 @@ const useWebSocket = (url) => {
 
         socketRef.current.onmessage = (event) => {
             const parsedMessage = JSON.parse(event.data);
+            console.log("Message reçu :", parsedMessage);
             const {
                 type,
                 message,
@@ -32,7 +33,7 @@ const useWebSocket = (url) => {
                 correctAnswer,
                 disconnect,
             } = parsedMessage;
-
+            
             switch (type) {
                 case "system":
                     if (message.includes("Bienvenue") && info) {
@@ -174,6 +175,30 @@ const useWebSocket = (url) => {
       setAnswerTime(0); // Réinitialiser le temps de réponse
     }
   };
+  const startBacGame = (timeLimit) => {
+    if (socketRef.current) {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "startBacGame",
+          roomId: currentRoom.id,
+          user: currentUser.id,
+          timeLimit: timeLimit,
+        })
+      );
+    }
+  };
+  const submitBacResponses = (responses) => {
+    if (socketRef.current) {
+      socketRef.current.send(
+        JSON.stringify({
+          type: "submitBacResponse",
+          roomId: currentRoom.id,
+          user: currentUser.id,
+          responses: responses,
+        })
+      );
+    }
+  }
 
   const disconnectWebSocket = () => {
     if (socketRef.current) {
@@ -203,6 +228,8 @@ const useWebSocket = (url) => {
     leaveRoom,
     startQuiz,
     answerQuiz,
+    startBacGame,
+    submitBacResponses,
     disconnectWebSocket,
   };
 };

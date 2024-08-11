@@ -22,6 +22,8 @@ const MainPage = () => {
     leaveRoom,
     startQuiz,
     answerQuiz,
+    startBacGame,
+    submitBacResponses,
     disconnectWebSocket,
   } = useWebSocket(apiUrl);
 
@@ -35,7 +37,6 @@ const MainPage = () => {
     answerQuiz(answer);
   };
 
-
   return (
     <div className="app-container">
       <div className="header">
@@ -47,8 +48,16 @@ const MainPage = () => {
               Déconnexion
             </button>
 
-            {currentRoom && (
-              <button onClick={handleLeaveRoom} className={`leave-room-button ${currentRoom.quiz.isRunning ? "disabled" : ""}`}>
+            {currentRoom && (currentRoom.quiz || currentRoom.bacGame) && (
+              <button
+                onClick={handleLeaveRoom}
+                className={`leave-room-button ${
+                  (currentRoom.quiz && currentRoom.quiz.isRunning) ||
+                  (currentRoom.bacGame && currentRoom.bacGame.isRunning)
+                    ? "disabled"
+                    : ""
+                }`}
+              >
                 Quitter la salle
               </button>
             )}
@@ -73,6 +82,8 @@ const MainPage = () => {
             handleAnswerQuiz={handleAnswerQuiz}
             quizStarted={quizStarted}
             sendMessage={sendMessage}
+            startBacGame={startBacGame}
+            submitBacResponses={submitBacResponses}
           />
         )}
       </div>

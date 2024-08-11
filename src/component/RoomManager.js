@@ -13,6 +13,7 @@ const RoomManager = ({
   quizStarted,
   sendMessage,
   startBacGame,
+  submitBacResponses,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBlindtestModalOpen, setIsBlindtestModalOpen] = useState(false);
@@ -22,6 +23,12 @@ const RoomManager = ({
   const [difficulty, setDifficulty] = useState("");
   const [timeLimit, setTimeLimit] = useState(0);
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const isOwner = currentRoom.ownerId === currentUser.id;
+  const isQuizRunning = currentRoom.quiz?.isRunning;
+  const isBacGameRunning = currentRoom.bacGame?.isRunning;
+  const showQuizResults = !quizStarted && !isQuizRunning && !isBacGameRunning && currentRoom.quiz?.results;
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -45,21 +52,20 @@ const RoomManager = ({
     }
   };
 
-  const toggleChat = () => setIsChatOpen((prevState) => !prevState);
-
   const handleStartPetitBac = () => {
-    startBacGame(timeLimit);
-    closePetitBacModal();
+    if (timeLimit) {
+      startBacGame(timeLimit);
+      closePetitBacModal();
+    }
   };
-console.log(currentRoom);
+
+  const toggleChat = () => setIsChatOpen(prevState => !prevState);
 
   return (
     <div className="relative min-h-screen flex">
       <div className="games-section flex-grow p-4 md:p-6 lg:p-8">
         <div className="flex flex-col gap-4">
-          {currentRoom.ownerId === currentUser.id &&
-          !currentRoom.quiz.isRunning &&
-          !currentRoom.bacGame.isRunning ? (
+          {isOwner && !isQuizRunning && !isBacGameRunning && (
             <div className="buttons-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={openModal}
@@ -80,28 +86,22 @@ console.log(currentRoom);
                 Commencer le Blindtest
               </button>
             </div>
-          ) : null}
-          {quizStarted && !currentRoom.bacGame.isRunning ? (
+          )}
+          {quizStarted && !isBacGameRunning && (
             <QuizQuestion
               room={currentRoom}
               answerQuiz={handleAnswerQuiz}
               quizStarted={quizStarted}
             />
-          ) : null}
-          {!quizStarted &&
-          !currentRoom.quiz.isRunning &&
-          !currentRoom.bacGame.isRunning &&
-          currentRoom.quiz.results ? (
+          )}
+          {showQuizResults && (
             <QuizResults quiz={currentRoom.quiz} />
-          ) : null}
-          {currentRoom.bacGame.isRunning && (
+          )}
+          {isBacGameRunning && (
             <div className="petit-bac-section bg-gray-100 p-4 rounded-lg shadow-md">
               <PetitBac
-                letter={currentRoom.bacGame.currentLetter}
-                categories={currentRoom.bacGame.categories}
-                responses={() => {}}
-                setResponses={() => {}}
-                onSubmit={() => {}}
+                room={currentRoom}
+                onSubmit={submitBacResponses}
               />
             </div>
           )}
@@ -224,17 +224,13 @@ console.log(currentRoom);
               { value: 780000, label: "13min" },
               { value: 840000, label: "14min" },
               { value: 900000, label: "15min" },
-
             ],
           },
         ]}
         values={[timeLimit]}
-        setValues={(index, value) => {
-          const setters = [setTimeLimit];
-          setters[index](value);
-        }}
+        setValues={(index, value) => setTimeLimit(value)}
         onStart={handleStartPetitBac}
-        startButtonText="Commencer "
+        startButtonText="Commencer"
         disableStartButton={!timeLimit}
       />
     </div>
