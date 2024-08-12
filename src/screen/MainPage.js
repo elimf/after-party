@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import Connect from "../component/Connect";
 import Waiting from "../component/Waiting";
 import RoomManager from "../component/RoomManager";
@@ -36,7 +36,8 @@ const MainPage = () => {
   const handleAnswerQuiz = (answer) => {
     answerQuiz(answer);
   };
-
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const toggleChat = () => setIsChatOpen(prevState => !prevState);
   return (
     <div className="app-container">
       <div className="header">
@@ -59,6 +60,14 @@ const MainPage = () => {
                 }`}
               >
                 Quitter la salle
+              </button>
+            )}
+            {currentRoom && (
+              <button
+                className=" z-10 absolute top-4 right-4 bg-gray-700 text-white p-2 w-32 rounded-full hover:bg-gray-600"
+                onClick={toggleChat}
+              >
+                {isChatOpen ? "Cacher le Chat" : "Voir Chat"}
               </button>
             )}
           </>
@@ -84,6 +93,8 @@ const MainPage = () => {
             sendMessage={sendMessage}
             startBacGame={startBacGame}
             submitBacResponses={submitBacResponses}
+            isChatOpen={isChatOpen}
+            toggleChat={toggleChat}
           />
         )}
       </div>

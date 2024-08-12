@@ -15,6 +15,8 @@ const RoomManager = ({
   sendMessage,
   startBacGame,
   submitBacResponses,
+  isChatOpen,
+  toggleChat,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBlindtestModalOpen, setIsBlindtestModalOpen] = useState(false);
@@ -23,7 +25,6 @@ const RoomManager = ({
   const [questionCount, setQuestionCount] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [timeLimit, setTimeLimit] = useState(0);
-  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const isOwner = currentRoom.ownerId === currentUser.id;
   const isQuizRunning = currentRoom.quiz?.isRunning;
@@ -60,8 +61,6 @@ const RoomManager = ({
       closePetitBacModal();
     }
   };
-
-  const toggleChat = () => setIsChatOpen(prevState => !prevState);
 
   return (
     <div className="relative min-h-screen flex">
@@ -125,12 +124,6 @@ const RoomManager = ({
           isChatOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <button
-          className="absolute top-4 right-4 bg-gray-700 text-white p-2 w-52 rounded-full hover:bg-gray-600"
-          onClick={toggleChat}
-        >
-          {isChatOpen ? "Cacher le Chat" : "Voir Chat"}
-        </button>
         {isChatOpen && <Chat room={currentRoom} onSendMessage={sendMessage} />}
       </div>
 
