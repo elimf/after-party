@@ -150,15 +150,19 @@ const RoomManager = ({
               { value: "Science", label: "Science" },
               { value: "Manga", label: "Manga" },
               { value: "Série/Films", label: "Série/Films" },
+              { value: "Art", label: "Art" },
+              { value: "Histoire", label: "Histoire" },
+              { value: "Littérature", label: "Littérature" },
+              { value: "Technologie", label: "Technologie" },
             ],
           },
           {
             label: "Choisissez le nombre de questions",
             choices: [
-              { value: "5", label: "5" },
-              { value: "10", label: "10" },
-              { value: "15", label: "15" },
-              { value: "20", label: "20" },
+              { value: 5, label: "5" },
+              { value: 10, label: "10" },
+              { value: 15, label: "15" },
+              { value: 20, label: "20" },
             ],
           },
           {
@@ -189,10 +193,10 @@ const RoomManager = ({
           {
             label: "Choisissez le nombre de chansons pour le Blindtest",
             choices: [
-              { value: "5", label: "5" },
-              { value: "10", label: "10" },
-              { value: "15", label: "15" },
-              { value: "20", label: "20" },
+              { value: 5, label: "5" },
+              { value: 10, label: "10" },
+              { value: 15, label: "15" },
+              { value: 20, label: "20" },
             ],
           },
           {
