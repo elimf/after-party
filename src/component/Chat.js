@@ -13,13 +13,23 @@ const Chat = ({ room, onSendMessage }) => {
   };
 
   return (
-    <div className="chat-container flex h-full bg-gray-800 text-white shadow-lg">
+    <div className="chat-container flex flex-col h-screen bg-gray-800 text-white">
       {/* Liste des utilisateurs */}
-      <div className="users-list bg-gray-900 w-1/3 p-4 border-r border-gray-700 overflow-y-auto">
+      <div className="users-list bg-gray-900 p-4 border-b border-gray-700 overflow-y-auto">
         <h4 className="text-lg font-semibold mb-4">Utilisateurs Connectés</h4>
         <ul>
           {room.users.map((user) => (
-            <li key={user.id} className="user-item mb-2 p-2 bg-gray-700 rounded-lg">
+            <li
+              key={user.id}
+              className={`user-item mb-2 p-2 rounded-lg ${
+                user.isOnline ? 'bg-green-700' : 'bg-gray-700'
+              }`}
+            >
+              <span
+                className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                  user.isOnline ? 'bg-green-400' : 'bg-gray-500'
+                }`}
+              ></span>
               {user.name}
             </li>
           ))}
@@ -29,7 +39,7 @@ const Chat = ({ room, onSendMessage }) => {
       {/* Contenu du chat */}
       <div className="chat-content flex-1 flex flex-col">
         <div className="chat-header bg-gray-900 p-4 border-b border-gray-700">
-          <h2 className="text-xl font-semibold">{room.name}</h2>
+          <h2 className="text-lg font-semibold">{room.name}</h2>
         </div>
         <ul className="chat-message-list flex-1 overflow-y-auto p-4">
           {room.messages.map((msg, index) => {
@@ -39,7 +49,7 @@ const Chat = ({ room, onSendMessage }) => {
 
             return (
               <li key={index} className="chat-message-item mb-2 p-2 bg-gray-700 rounded-lg">
-                <span className="chat-message-time text-sm text-gray-400"> ({relativeTime})</span>
+                <span className="chat-message-time text-xs text-gray-400"> ({relativeTime})</span>
                 <strong className="font-medium">{msg.name}:</strong> <span>{msg.text}</span>
               </li>
             );
