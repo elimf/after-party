@@ -1,10 +1,11 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import Connect from "../component/Connect";
 import Waiting from "../component/Waiting";
 import RoomManager from "../component/RoomManager";
 import useWebSocket from "../hooks/useWebSocket";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ChatBubbleOvalLeftIcon, XMarkIcon } from "@heroicons/react/24/outline"; // Importation correcte pour Heroicons v2
 
 const MainPage = () => {
   const apiUrl = process.env.REACT_APP_API_WS_URL;
@@ -37,7 +38,7 @@ const MainPage = () => {
     answerQuiz(answer);
   };
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const toggleChat = () => setIsChatOpen(prevState => !prevState);
+  const toggleChat = () => setIsChatOpen((prevState) => !prevState);
   return (
     <div className="app-container">
       <div className="header">
@@ -64,10 +65,17 @@ const MainPage = () => {
             )}
             {currentRoom && (
               <button
-                className=" z-10 absolute top-4 right-4 bg-gray-700 text-white p-2 w-32 rounded-full hover:bg-gray-600"
+                className="z-10 absolute top-0 right-4 bg-gray-700 text-white p-2 rounded-full hover:bg-gray-600 transition duration-200"
                 onClick={toggleChat}
               >
-                {isChatOpen ? "Cacher le Chat" : "Voir Chat"}
+                {isChatOpen ? (
+                  <XMarkIcon className="w-6 h-6" aria-hidden="true" />
+                ) : (
+                  <ChatBubbleOvalLeftIcon
+                    className="w-6 h-6"
+                    aria-hidden="true"
+                  />
+                )}
               </button>
             )}
           </>

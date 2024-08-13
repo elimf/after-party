@@ -44,12 +44,21 @@ const useWebSocket = (url) => {
               toast.error(message);
               localStorage.removeItem("authToken");
               setConnected(false);
-            } else if (message.includes("Un utilisateur a terminé! Vos réponses vont être collectées.")) {
+            } else if (
+              message.includes(
+                "Un utilisateur a terminé! Vos réponses vont être collectées."
+              )
+            ) {
               console.log(room);
               setCurrentRoom(room);
             } else {
               toast.info(message);
             }
+            break;
+          case "reconnect":
+            setCurrentUser(info);
+            setConnected(true);
+            setCurrentRoom(room);
             break;
           case "currentUser":
             setCurrentUser(info);
