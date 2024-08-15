@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate, Link } from "react-router-dom"; // Importer Link pour la navigation
+import { useNavigate, Link } from "react-router-dom";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -8,8 +8,10 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // État pour gérer le chargement
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -19,11 +21,11 @@ function Register() {
     }
 
     if (password !== confirmPassword) {
-      setError(
-        "Le mot de passe et la confirmation du mot de passe ne correspondent pas."
-      );
+      setError("Le mot de passe et la confirmation du mot de passe ne correspondent pas.");
       return;
     }
+
+    setLoading(true); // Début du chargement
 
     try {
       const response = await axios.post(`${apiUrl}/auth/register`, {
@@ -40,7 +42,9 @@ function Register() {
         setError("Inscription échouée");
       }
     } catch (err) {
-        setError("Une erreur est survenue : "+err);
+      setError("Une erreur est survenue : " + err);
+    } finally {
+      setLoading(false); // Fin du chargement
     }
   };
 
@@ -50,9 +54,7 @@ function Register() {
         <h2 className="text-2xl font-bold mb-6 text-center">Inscription</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium">
-              Pseudo
-            </label>
+            <label className="block text-gray-700 text-sm font-medium">Pseudo</label>
             <input
               type="text"
               className="w-full px-3 py-2 border rounded mt-1 text-sm"
@@ -63,9 +65,7 @@ function Register() {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium">
-              Email
-            </label>
+            <label className="block text-gray-700 text-sm font-medium">Email</label>
             <input
               type="email"
               className="w-full px-3 py-2 border rounded mt-1 text-sm"
@@ -76,9 +76,7 @@ function Register() {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium">
-              Mot de passe
-            </label>
+            <label className="block text-gray-700 text-sm font-medium">Mot de passe</label>
             <input
               type="password"
               className="w-full px-3 py-2 border rounded mt-1 text-sm"
@@ -89,9 +87,7 @@ function Register() {
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-medium">
-              Confirmer le mot de passe
-            </label>
+            <label className="block text-gray-700 text-sm font-medium">Confirmer le mot de passe</label>
             <input
               type="password"
               className="w-full px-3 py-2 border rounded mt-1 text-sm"
@@ -104,9 +100,10 @@ function Register() {
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className={`w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={loading} // Désactive le bouton pendant le chargement
           >
-            Inscription
+            {loading ? "Inscription en cours..." : "Inscription"} {/* Affiche un texte différent pendant le chargement */}
           </button>
           <p className="mt-4 text-center text-sm text-gray-600">
             Vous avez déjà un compte ?{" "}

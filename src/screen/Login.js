@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../hooks/AuthContext";
-import { useNavigate, Link } from "react-router-dom"; // Importer Link pour la navigation
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // État pour gérer le chargement
   const { login } = useAuth();
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -18,20 +20,21 @@ function Login() {
       return;
     }
 
+    setLoading(true); // Début du chargement
+
     try {
-      const response = await axios.post(`${apiUrl}/auth/login`, {
-        email,
-        password,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json', // Specify the content type of the request
-          'Accept': 'application/json',       // Specify the expected response type
+      const response = await axios.post(
+        `${apiUrl}/auth/login`,
+        { email, password },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          }
         }
-      });
+      );
 
       if (response.data.token) {
-        // Stockez le token dans le stockage local ou un autre mécanisme de stockage
         localStorage.setItem("authToken", response.data.token);
         login();
         navigate("/");
@@ -39,20 +42,18 @@ function Login() {
         setError("Vérifiez vos informations de connexion");
       }
     } catch (err) {
-      // Check if err.response exists to get more specific error information
       if (err.response) {
-        // Server responded with a status other than 2xx
         console.error('Error Response:', err.response);
         setError(`Une erreur est survenue : ${err.response.data.message || err.response.statusText}`);
       } else if (err.request) {
-        // Request was made but no response received
         console.error('Error Request:', err.request);
-        setError('Aucune réponse reçue du serveur.'+ apiUrl);
+        setError('Aucune réponse reçue du serveur.');
       } else {
-        // Something else caused the error
         console.error('Error Message:', err.message);
         setError(`Une erreur est survenue : ${err.message}`);
       }
+    } finally {
+      setLoading(false); // Fin du chargement
     }
   };
 
@@ -90,9 +91,10 @@ function Login() {
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            className={`w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={loading} // Désactive le bouton pendant le chargement
           >
-            Connexion
+            {loading ? "Connexion en cours..." : "Connexion"} {/* Affiche un texte différent pendant le chargement */}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
