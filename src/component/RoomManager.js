@@ -4,7 +4,7 @@ import QuizQuestion from "./Game/QuizQuestion";
 import QuizResults from "./Game/QuizResults";
 import PetitBac from "./Game/PetitBac";
 import GameModal from "./GameModal";
-import VoteComponent from "./Game/VoteComponent";
+import BacResults from "./Game/BacResults";
 
 const RoomManager = ({
   currentRoom,
@@ -15,6 +15,7 @@ const RoomManager = ({
   sendMessage,
   startBacGame,
   submitBacResponses,
+  bacResults,
   isChatOpen,
   toggleChat,
 }) => {
@@ -30,7 +31,7 @@ const RoomManager = ({
   const isQuizRunning = currentRoom.quiz?.isRunning;
   const isBacGameRunning = currentRoom.bacGame?.isRunning;
   const showQuizResults = !quizStarted && !isQuizRunning && !isBacGameRunning && currentRoom.quiz?.results;
-  const isBacGameVoting = currentRoom.bacGame?.isVoting;
+  const isBacRoundScored = currentRoom.bacGame?.phase === "scored";
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -77,7 +78,6 @@ const RoomManager = ({
               <button
                 onClick={openPetitBacModal}
                 className="start-petitbac-button bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
-                disabled
               >
                 Commencer le Petit Bac
               </button>
@@ -107,12 +107,9 @@ const RoomManager = ({
               />
             </div>
           )}
-          {isBacGameVoting && (
-            <div className="bac-vote-section bg-gray-100 p-4 rounded-lg shadow-md">
-              <VoteComponent
-                room={currentRoom}
-                onVoteSubmit={submitBacResponses}
-              />
+          {isBacRoundScored && bacResults && (
+            <div className="bac-results-section bg-gray-100 p-4 rounded-lg shadow-md">
+              <BacResults results={bacResults} />
             </div>
           )}
           

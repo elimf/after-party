@@ -10,6 +10,7 @@ const useWebSocket = (url) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [answerTime, setAnswerTime] = useState(0); // Temps de réponse
   const [quizStarted, setQuizStarted] = useState(false); // Indicateur si le quiz a démarré
+  const [bacResults, setBacResults] = useState(null);
   const socketRef = useRef(null);
   const { logout } = useAuth();
   const connectWebSocket = (token) => {
@@ -32,6 +33,8 @@ const useWebSocket = (url) => {
           room,
           correctAnswer,
           disconnect,
+          summary,
+          scores,
         } = parsedMessage;
 
         switch (type) {
@@ -65,6 +68,9 @@ const useWebSocket = (url) => {
             break;
           case "room":
             setCurrentRoom(room);
+            if (room?.bacGame?.phase === "playing") {
+              setBacResults(null);
+            }
             break;
           case "rooms":
             setRooms(rooms);
@@ -82,6 +88,15 @@ const useWebSocket = (url) => {
           case "endQuiz":
             toast.success("Le quiz est terminé. Scores mis à jour.");
             setQuizStarted(false);
+            break;
+          case "bacResults":
+            setBacResults({
+              summary,
+              scores,
+              letter: parsedMessage.letter,
+              fromTimeout: parsedMessage.fromTimeout,
+            });
+            toast.success("Manche Petit Bac terminée.");
             break;
           default:
             break;
@@ -155,6 +170,7 @@ const useWebSocket = (url) => {
         })
       );
       setCurrentRoom(null);
+      setBacResults(null);
     }
   };
 
@@ -199,6 +215,7 @@ const useWebSocket = (url) => {
           timeLimit: timeLimit,
         })
       );
+      setBacResults(null);
     }
   };
   const submitBacResponses = (responses, autoSubmit) => {
@@ -236,6 +253,7 @@ const useWebSocket = (url) => {
     rooms,
     users,
     quizStarted,
+    bacResults,
     connectWebSocket,
     sendMessage,
     createRoom,

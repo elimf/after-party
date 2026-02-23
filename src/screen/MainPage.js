@@ -15,6 +15,7 @@ const MainPage = () => {
     rooms,
     users,
     quizStarted,
+    bacResults,
     connectWebSocket,
     sendMessage,
     createRoom,
@@ -70,6 +71,7 @@ const MainPage = () => {
             sendMessage={sendMessage}
             startBacGame={startBacGame}
             submitBacResponses={submitBacResponses}
+            bacResults={bacResults}
             isChatOpen={isChatOpen}
             toggleChat={toggleChat}
           />
