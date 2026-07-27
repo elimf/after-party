@@ -106,12 +106,12 @@ const PetitBac = ({ room, onSubmit }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
-      <div className="container max-w-4xl fade-in">
-        <div className="card border-t-4 border-t-secondary">
+      <div className="container max-w-4xl animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 border-t-4 border-t-blue-600">
           {/* Title & Timer */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold text-neutral-600 mb-2">Petit Bac</h1>
-            <div className="text-6xl font-black bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent mb-4">
+            <h1 className="text-2xl font-semibold text-gray-600 mb-2">Petit Bac</h1>
+            <div className="text-6xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
               {currentLetter}
             </div>
             <div className={`text-4xl font-bold ${timeColor} transition`}>
@@ -124,7 +124,7 @@ const PetitBac = ({ room, onSubmit }) => {
             {categories.map((category) => (
               <div key={category}>
                 <label
-                  className="block text-sm font-semibold text-neutral-700 mb-2 capitalize"
+                  className="block text-sm font-semibold text-gray-900 mb-2 capitalize"
                   htmlFor={`input-${category}`}
                 >
                   {category}
@@ -134,12 +134,12 @@ const PetitBac = ({ room, onSubmit }) => {
                   type="text"
                   value={localResponses[category] || ""}
                   onChange={(e) => handleChange(category, e.target.value)}
-                  className={`input w-full ${
+                  className={`w-full px-4 py-2 border rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition ${
                     errors[category]
                       ? "border-red-500 bg-red-50"
                       : isSubmitted
-                      ? "bg-neutral-100"
-                      : ""
+                      ? "bg-gray-100 border-gray-300"
+                      : "border-gray-300"
                   } ${isSubmitted ? "cursor-not-allowed opacity-50" : ""}`}
                   placeholder={`Commençant par ${currentLetter}`}
                   disabled={isSubmitted}
@@ -158,12 +158,10 @@ const PetitBac = ({ room, onSubmit }) => {
           <button
             onClick={() => handleSubmit(false)}
             disabled={isSubmitted || timeLeft === 0}
-            className={`btn w-full py-3 font-semibold text-lg ${
-              isSubmitted
-                ? "btn-secondary opacity-50 cursor-not-allowed"
-                : timeLeft <= 0
-                ? "btn-secondary opacity-50 cursor-not-allowed"
-                : "btn-primary"
+            className={`w-full px-4 py-3 font-semibold text-lg rounded-lg transition ${
+              isSubmitted || timeLeft <= 0
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-300 opacity-50"
+                : "bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:shadow-lg"
             }`}
           >
             {isSubmitted ? (

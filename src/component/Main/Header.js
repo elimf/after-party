@@ -22,8 +22,8 @@ const Header = ({
           🎮 After Party
         </h1>
         {currentRoom && (
-          <span className="hidden sm:block text-sm text-gray-500 ml-4 pl-4 border-l border-gray-300">
-            Salle: <span className="font-semibold text-gray-700">{currentRoom.name}</span>
+          <span className="hidden sm:block text-sm text-gray-600 ml-4 pl-4 border-l border-gray-300">
+            Salle: <span className="font-semibold text-gray-900">{currentRoom.name}</span>
           </span>
         )}
       </div>

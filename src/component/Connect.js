@@ -27,17 +27,21 @@ const Connect = ({ onConnect }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6">
-      <div className="bg-neutral-600 p-12 rounded-lg shadow-lg  mx-auto text-center">
-        <h1 className="text-9xl font-cursive text-customYellow mb-8 text-shadow-custom">
-          After Party
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700 flex flex-col items-center justify-center p-6">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+
+      <div className="relative z-10 bg-white p-12 rounded-lg shadow-lg mx-auto text-center max-w-md">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-8">
+          🎮 After Party
         </h1>
         <button
           onClick={handleConnect}
-          className={`bg-blue-500 text-white text-xl py-4 px-8 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          disabled={loading} // Désactive le bouton pendant le chargement
+          className={`w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold text-lg rounded-lg hover:shadow-lg transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          disabled={loading}
         >
-          {loading ? "Chargement..." : "Connexion à After Party"} {/* Affiche "Chargement..." pendant l'exécution */}
+          {loading ? "Chargement..." : "Connexion à After Party"}
         </button>
       </div>
     </div>

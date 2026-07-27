@@ -19,31 +19,31 @@ const QuizResults = ({ quiz }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-8 px-4">
-      <div className="container max-w-2xl fade-in">
-        <div className="card">
+      <div className="container max-w-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
           {/* Title */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2">🏆 Résultats</h1>
-            <p className="text-neutral-600">{totalPlayers} joueur{totalPlayers > 1 ? "s" : ""}</p>
+            <p className="text-gray-700">{totalPlayers} joueur{totalPlayers > 1 ? "s" : ""}</p>
           </div>
 
           {/* Quiz Info */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-            <div className="bg-neutral-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-neutral-500 mb-1">Type</p>
-              <p className="font-bold text-neutral-900">{type}</p>
+            <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-200">
+              <p className="text-xs text-gray-600 mb-1">Type</p>
+              <p className="font-bold text-gray-900">{type}</p>
             </div>
-            <div className="bg-neutral-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-neutral-500 mb-1">Difficulté</p>
-              <p className="font-bold text-neutral-900">{difficulty}</p>
+            <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-200">
+              <p className="text-xs text-gray-600 mb-1">Difficulté</p>
+              <p className="font-bold text-gray-900">{difficulty}</p>
             </div>
-            <div className="bg-neutral-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-neutral-500 mb-1">Questions</p>
-              <p className="font-bold text-neutral-900">{totalQuestions}</p>
+            <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-200">
+              <p className="text-xs text-gray-600 mb-1">Questions</p>
+              <p className="font-bold text-gray-900">{totalQuestions}</p>
             </div>
-            <div className="bg-neutral-50 rounded-lg p-3 text-center">
-              <p className="text-xs text-neutral-500 mb-1">Joueurs</p>
-              <p className="font-bold text-neutral-900">{totalPlayers}</p>
+            <div className="bg-gray-50 rounded-lg p-3 text-center border border-gray-200">
+              <p className="text-xs text-gray-600 mb-1">Joueurs</p>
+              <p className="font-bold text-gray-900">{totalPlayers}</p>
             </div>
           </div>
 
@@ -59,7 +59,7 @@ const QuizResults = ({ quiz }) => {
                     ? "bg-gray-50 border-gray-300"
                     : index === 2
                     ? "bg-orange-50 border-orange-300"
-                    : "bg-neutral-50 border-neutral-200"
+                    : "bg-gray-50 border-gray-200"
                 }`}
               >
                 <div className="flex items-center gap-3 flex-1">
@@ -67,17 +67,17 @@ const QuizResults = ({ quiz }) => {
                     {getMedalEmoji(index)}
                   </span>
                   <div>
-                    <p className="font-bold text-neutral-900">{user.name}</p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="font-bold text-gray-900">{user.name}</p>
+                    <p className="text-xs text-gray-600">
                       ⏱️ {(user.avgResponseTime / 1000).toFixed(1)}s/rép
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                     {user.score}
                   </p>
-                  <p className="text-xs text-neutral-500">pts</p>
+                  <p className="text-xs text-gray-600">pts</p>
                 </div>
               </div>
             ))}

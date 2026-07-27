@@ -68,24 +68,24 @@ const RoomManager = ({
       <div className="games-section flex-grow p-4 md:p-6 lg:p-8">
         <div className="flex flex-col gap-4">
           {isOwner && !isQuizRunning && !isBacGameRunning && (
-            <div className="buttons-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <button
                 onClick={openModal}
-                className="start-quiz-button bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
+                className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition"
               >
-                Commencer le Quiz
+                📝 Quiz
               </button>
               <button
                 onClick={openPetitBacModal}
-                className="start-petitbac-button bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50"
+                className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Commencer le Petit Bac
+                📚 Petit Bac
               </button>
               <button
                 onClick={openBlindtestModal}
-                className="start-blindtest-button bg-purple-500 text-white py-2 px-4 rounded-lg hover:bg-purple-600 transition duration-200"
+                className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition"
               >
-                Commencer le Blindtest
+                🎵 Blindtest
               </button>
             </div>
           )}
@@ -100,15 +100,13 @@ const RoomManager = ({
             <QuizResults quiz={currentRoom.quiz} />
           )}
           {isBacGameRunning && (
-            <div className="petit-bac-section bg-gray-100 p-4 rounded-lg shadow-md">
-              <PetitBac
-                room={currentRoom}
-                onSubmit={submitBacResponses}
-              />
-            </div>
+            <PetitBac
+              room={currentRoom}
+              onSubmit={submitBacResponses}
+            />
           )}
           {isBacRoundScored && bacResults && (
-            <div className="bac-results-section bg-gray-100 p-4 rounded-lg shadow-md">
+            <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
               <BacResults results={bacResults} />
             </div>
           )}
@@ -117,7 +115,7 @@ const RoomManager = ({
       </div>
 
       <div
-        className={`fixed top-0 right-0 bg-gray-800 text-white w-100 h-full transform transition-transform ${
+        className={`fixed top-0 right-0 w-80 h-full bg-white shadow-lg transform transition-transform z-40 ${
           isChatOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

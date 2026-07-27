@@ -30,19 +30,31 @@ const VoteComponent = ({ room, onVoteSubmit }) => {
   };
 
   return (
-    <div className="vote-component p-4">
-      <h2 className="text-xl font-bold mb-4">Votez pour les réponses</h2>
+    <div className="p-4 bg-white rounded-lg shadow-md border border-gray-200">
+      <h2 className="text-xl font-bold text-gray-900 mb-4">Votez pour les réponses</h2>
       {categories.map((category) => (
-        <div key={category} className="category-section mb-6">
-          <h4 className="text-lg font-semibold">{category}</h4>
-          <div className="responses-list mt-2">
+        <div key={category} className="mb-6">
+          <h4 className="text-lg font-semibold text-gray-900 mb-3 capitalize">{category}</h4>
+          <div className="space-y-3">
             {responses[category]?.map((response) => (
-              <div key={response.userId} className="response-item mb-2 p-2 border rounded">
-                <p className="font-medium">{response.userName}: {response.response}</p>
-                <div className="vote-options mt-2">
-                  <button onClick={() => handleVoteChange(category, response.userId, 1)} className="vote-button bg-blue-500 text-white py-1 px-2 rounded mr-2">1</button>
-                  <button onClick={() => handleVoteChange(category, response.userId, 2)} className="vote-button bg-green-500 text-white py-1 px-2 rounded mr-2">2</button>
-                  <button onClick={() => handleVoteChange(category, response.userId, 3)} className="vote-button bg-red-500 text-white py-1 px-2 rounded">3</button>
+              <div key={response.userId} className="mb-3 p-4 border border-gray-200 rounded-lg bg-gray-50 hover:shadow-md transition">
+                <p className="font-semibold text-gray-900 mb-3">{response.userName}: <span className="text-purple-600">{response.response}</span></p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleVoteChange(category, response.userId, 1)}
+                    className="px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg hover:shadow-md transition text-sm">
+                    Valide
+                  </button>
+                  <button
+                    onClick={() => handleVoteChange(category, response.userId, 2)}
+                    className="px-3 py-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-semibold rounded-lg hover:shadow-md transition text-sm">
+                    Partiel
+                  </button>
+                  <button
+                    onClick={() => handleVoteChange(category, response.userId, 3)}
+                    className="px-3 py-1 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-lg hover:shadow-md transition text-sm">
+                    Invalide
+                  </button>
                 </div>
               </div>
             ))}
@@ -51,7 +63,7 @@ const VoteComponent = ({ room, onVoteSubmit }) => {
       ))}
       <button
         onClick={handleSubmitVotes}
-        className="submit-button bg-blue-600 text-white py-2 px-4 rounded mt-4 hover:bg-blue-700"
+        className="w-full px-4 py-3 mt-6 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition"
       >
         Soumettre les votes
       </button>

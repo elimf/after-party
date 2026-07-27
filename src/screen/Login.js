@@ -51,26 +51,26 @@ function Login() {
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="card border-0 bg-white/95 backdrop-blur-sm">
+        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
           {/* Header */}
           <div className="text-center mb-8">
             <img src={logo} alt="After Party" className="w-24 h-24 mx-auto mb-4" />
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-1">
               After Party
             </h1>
-            <p className="text-gray-600 text-sm">Connectez-vous pour jouer</p>
+            <p className="text-gray-700 text-sm">Connectez-vous pour jouer</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Email
               </label>
               <input
                 type="email"
-                className="input"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
                 placeholder="exemple@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -88,7 +88,7 @@ function Login() {
 
             {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm fade-in">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm animate-in fade-in slide-in-from-top-2 duration-300">
                 ⚠️ {error}
               </div>
             )}
@@ -97,10 +97,10 @@ function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="btn btn-primary w-full py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
-                <span className="loading inline-block">Connexion...</span>
+                <span className="inline-block">Connexion...</span>
               ) : (
                 "Se connecter"
               )}
@@ -110,12 +110,12 @@ function Login() {
           {/* Divider */}
           <div className="my-6 flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-300"></div>
-            <span className="text-xs text-gray-500 font-medium">OU</span>
+            <span className="text-xs text-gray-600 font-medium">OU</span>
             <div className="flex-1 h-px bg-gray-300"></div>
           </div>
 
           {/* Register Link */}
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-700">
             Pas encore inscrit ?{" "}
             <Link to="/register" className="font-semibold text-purple-600 hover:text-purple-700 transition">
               Créer un compte
