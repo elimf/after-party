@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import "../../styles/theme.css";
 
 const PetitBac = ({ room, onSubmit }) => {
   const currentLetter = room.bacGame.currentLetter || "";
@@ -47,7 +48,7 @@ const PetitBac = ({ room, onSubmit }) => {
       const normalizedResponse = normalize(response);
 
       if (!isAutoSubmit && !response) {
-        newErrors[category] = `Le champ "${category}" ne peut pas être vide.`;
+        newErrors[category] = `Champ requis`;
       }
 
       if (
@@ -56,7 +57,7 @@ const PetitBac = ({ room, onSubmit }) => {
         normalizedLetter &&
         !normalizedResponse.startsWith(normalizedLetter)
       ) {
-        newErrors[category] = `La réponse pour "${category}" doit commencer par "${currentLetter}".`;
+        newErrors[category] = `Doit commencer par "${currentLetter}"`;
       }
 
       formattedResponses[category] = {
@@ -96,41 +97,85 @@ const PetitBac = ({ room, onSubmit }) => {
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  const timeColor =
+    timeLeft <= 5000
+      ? "text-red-600"
+      : timeLeft <= 15000
+      ? "text-yellow-600"
+      : "text-green-600";
+
   return (
-    <div className="petit-bac p-4">
-      <h2 className="text-xl font-bold mb-4">Petit Bac - Lettre : {currentLetter}</h2>
-      <p className="text-red-600 font-semibold mb-4">Temps restant : {formatTime(timeLeft)}</p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {categories.map((category) => (
-          <div key={category} className="category-input">
-            <label className="block font-medium mb-2" htmlFor={`input-${category}`}>
-              {category}
-            </label>
-            <input
-              id={`input-${category}`}
-              type="text"
-              value={localResponses[category] || ""}
-              onChange={(e) => handleChange(category, e.target.value)}
-              className={`input w-full p-2 border ${errors[category] ? "border-red-500 bg-red-100" : "border-gray-300"} rounded-lg`}
-              aria-label={`Réponse pour ${category}`}
-              placeholder="Entrez une réponse"
-              disabled={isSubmitted}
-            />
-            {errors[category] && <p className="text-red-500 text-sm mt-1">{errors[category]}</p>}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
+      <div className="container max-w-4xl fade-in">
+        <div className="card border-t-4 border-t-secondary">
+          {/* Title & Timer */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-semibold text-neutral-600 mb-2">Petit Bac</h1>
+            <div className="text-6xl font-black bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent mb-4">
+              {currentLetter}
+            </div>
+            <div className={`text-4xl font-bold ${timeColor} transition`}>
+              ⏱️ {formatTime(timeLeft)}
+            </div>
           </div>
-        ))}
-      </div>
 
-      <button
-        onClick={() => handleSubmit(false)}
-        className={`submit-button text-white py-2 px-4 rounded-lg mt-4 w-full md:w-auto ${
-          isSubmitted ? "bg-gray-500 hover:bg-gray-600" : "bg-green-500 hover:bg-green-600"
-        }`}
-        disabled={isSubmitted}
-      >
-        {isSubmitted ? "Reponses envoyees" : timeLeft <= 0 ? "Temps ecoule" : "Soumettre"}
-      </button>
+          {/* Categories Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {categories.map((category) => (
+              <div key={category}>
+                <label
+                  className="block text-sm font-semibold text-neutral-700 mb-2 capitalize"
+                  htmlFor={`input-${category}`}
+                >
+                  {category}
+                </label>
+                <input
+                  id={`input-${category}`}
+                  type="text"
+                  value={localResponses[category] || ""}
+                  onChange={(e) => handleChange(category, e.target.value)}
+                  className={`input w-full ${
+                    errors[category]
+                      ? "border-red-500 bg-red-50"
+                      : isSubmitted
+                      ? "bg-neutral-100"
+                      : ""
+                  } ${isSubmitted ? "cursor-not-allowed opacity-50" : ""}`}
+                  placeholder={`Commençant par ${currentLetter}`}
+                  disabled={isSubmitted}
+                  autoComplete="off"
+                />
+                {errors[category] && (
+                  <p className="text-red-600 text-xs mt-1 font-medium">
+                    ⚠️ {errors[category]}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Submit Button */}
+          <button
+            onClick={() => handleSubmit(false)}
+            disabled={isSubmitted || timeLeft === 0}
+            className={`btn w-full py-3 font-semibold text-lg ${
+              isSubmitted
+                ? "btn-secondary opacity-50 cursor-not-allowed"
+                : timeLeft <= 0
+                ? "btn-secondary opacity-50 cursor-not-allowed"
+                : "btn-primary"
+            }`}
+          >
+            {isSubmitted ? (
+              <>✓ Réponses envoyées</>
+            ) : timeLeft <= 0 ? (
+              <>Temps écoulé</>
+            ) : (
+              <>Soumettre</>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -140,7 +185,7 @@ function normalize(value) {
     .trim()
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+    .replace(/[̀-ͯ]/g, "");
 }
 
 export default PetitBac;

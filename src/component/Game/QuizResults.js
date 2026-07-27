@@ -1,48 +1,88 @@
 import React from "react";
-import { difficultyTranslation } from "../../utils/quizUtils"; // Importer l'objet difficultyTranslation
+import { difficultyTranslation } from "../../utils/quizUtils";
+import "../../styles/theme.css";
 
 const QuizResults = ({ quiz }) => {
   const { totalQuestions, type } = quiz;
   const totalPlayers = quiz.results.users.length;
   const difficultyQuiz = quiz.difficulty;
-
-  // Obtenir la traduction en français
   const difficulty = difficultyTranslation[difficultyQuiz] || "Inconnu";
 
-  // Trier les utilisateurs par score (du plus élevé au plus bas)
   const sortedUsers = [...quiz.results.users].sort((a, b) => b.score - a.score);
 
+  const getMedalEmoji = (index) => {
+    if (index === 0) return "🥇";
+    if (index === 1) return "🥈";
+    if (index === 2) return "🥉";
+    return `#${index + 1}`;
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold mb-4 text-center">Résultats du Quiz</h2>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-8 px-4">
+      <div className="container max-w-2xl fade-in">
+        <div className="card">
+          {/* Title */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold mb-2">🏆 Résultats</h1>
+            <p className="text-neutral-600">{totalPlayers} joueur{totalPlayers > 1 ? "s" : ""}</p>
+          </div>
 
-        {/* Afficher les détails du quiz */}
-        <div className="mb-6">
-          <p className="text-lg font-semibold mb-2">
-            <strong>Nombre de joueurs:</strong> {totalPlayers}
-          </p>
-          <p className="text-lg font-semibold mb-2">
-            <strong>Nombre de questions:</strong> {totalQuestions}
-          </p>
-          <p className="text-lg font-semibold mb-2">
-            <strong>Difficulté:</strong> {difficulty}
-          </p>
-          <p className="text-lg font-semibold mb-2">
-            <strong>Type:</strong> {type}
-          </p>
+          {/* Quiz Info */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            <div className="bg-neutral-50 rounded-lg p-3 text-center">
+              <p className="text-xs text-neutral-500 mb-1">Type</p>
+              <p className="font-bold text-neutral-900">{type}</p>
+            </div>
+            <div className="bg-neutral-50 rounded-lg p-3 text-center">
+              <p className="text-xs text-neutral-500 mb-1">Difficulté</p>
+              <p className="font-bold text-neutral-900">{difficulty}</p>
+            </div>
+            <div className="bg-neutral-50 rounded-lg p-3 text-center">
+              <p className="text-xs text-neutral-500 mb-1">Questions</p>
+              <p className="font-bold text-neutral-900">{totalQuestions}</p>
+            </div>
+            <div className="bg-neutral-50 rounded-lg p-3 text-center">
+              <p className="text-xs text-neutral-500 mb-1">Joueurs</p>
+              <p className="font-bold text-neutral-900">{totalPlayers}</p>
+            </div>
+          </div>
+
+          {/* Leaderboard */}
+          <div className="space-y-3">
+            {sortedUsers.map((user, index) => (
+              <div
+                key={user.userId}
+                className={`flex items-center justify-between p-4 rounded-lg border-2 transition ${
+                  index === 0
+                    ? "bg-yellow-50 border-yellow-300"
+                    : index === 1
+                    ? "bg-gray-50 border-gray-300"
+                    : index === 2
+                    ? "bg-orange-50 border-orange-300"
+                    : "bg-neutral-50 border-neutral-200"
+                }`}
+              >
+                <div className="flex items-center gap-3 flex-1">
+                  <span className="text-3xl font-bold w-12 text-center">
+                    {getMedalEmoji(index)}
+                  </span>
+                  <div>
+                    <p className="font-bold text-neutral-900">{user.name}</p>
+                    <p className="text-xs text-neutral-500">
+                      ⏱️ {(user.avgResponseTime / 1000).toFixed(1)}s/rép
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    {user.score}
+                  </p>
+                  <p className="text-xs text-neutral-500">pts</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-
-        {/* Afficher la liste des résultats avec un positionnement réactif */}
-        <ul className="list-none">
-          {sortedUsers.map((user, index) => (
-            <li key={user.userId} className="flex flex-col md:flex-row md:items-center mb-4 p-4 border rounded-lg bg-gray-50 shadow-sm">
-              <span className="text-xl font-medium mr-4">{index + 1}. {user.name}</span>
-              <span className="text-lg text-gray-700 mr-4">Score: {user.score}</span>
-              <span className="text-lg text-gray-500">Temps moyen de réponse: {(user.avgResponseTime / 1000).toFixed(2)} s</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

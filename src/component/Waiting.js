@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
+import "../styles/theme.css";
 
-Modal.setAppElement("#root"); // Ensure the root element is specified
+Modal.setAppElement("#root");
 
 const Waiting = ({ rooms, users, onCreateRoom, onJoinRoom, currentUser }) => {
   const [room, setRoom] = useState("");
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-  console.log(rooms);
 
   useEffect(() => {
-    // Vérifie si `rooms` est vide ou si l'utilisateur actuel est propriétaire d'une salle
     const isUserOwner =
-      rooms.length > 0 && rooms.some((room) => room.ownerId === currentUser.id);
-    // Désactiver le bouton si `rooms` n'est pas vide et l'utilisateur n'est pas propriétaire
+      rooms.length > 0 && rooms.some((r) => r.ownerId === currentUser.id);
     setIsButtonDisabled(!isUserOwner);
   }, [rooms, currentUser.id]);
 
@@ -32,108 +30,183 @@ const Waiting = ({ rooms, users, onCreateRoom, onJoinRoom, currentUser }) => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  const isRoomInGame = (r) =>
+    r.quiz?.isRunning || r.bacGame?.isRunning || r.bacGame?.isVoting;
+
   return (
-    <div className="p-4 space-y-4 sm:p-6 lg:p-8">
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold sm:text-2xl lg:text-3xl text-white">
-          Salles Disponibles
-        </h2>
-        <ul className="space-y-2">
-          {rooms.map((room) => (
-            <li
-              key={room.id}
-              className="flex flex-col sm:flex-row justify-between items-center p-2 bg-gray-100 rounded-lg shadow-md"
+    <div className="min-h-screen bg-neutral-50">
+      <div className="container py-8 space-y-8">
+        {/* Rooms Section */}
+        <div className="fade-in">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-3xl font-bold text-neutral-900">
+                🎮 Salles Disponibles
+              </h2>
+              <p className="text-neutral-500 mt-1">
+                {rooms.length} salle{rooms.length !== 1 ? "s" : ""} ouverte
+                {rooms.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+            <button
+              onClick={openModal}
+              disabled={!isButtonDisabled}
+              className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              <span className="font-medium text-lg">{room.name}</span>
-              <button
-                className={`mt-2 sm:mt-0 px-4 py-2 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 ${
-                  room.quiz?.isRunning ||
-                  room.bacGame?.isRunning ||
-                  room.bacGame?.isVoting
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed" // Style pour bouton désactivé
-                    : "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500" // Style pour bouton actif
-                }`}
-                onClick={() => onJoinRoom(room.id)}
-                disabled={
-                  room.quiz?.isRunning ||
-                  room.bacGame?.isRunning ||
-                  room.bacGame?.isVoting
-                }
-              >
-                Rejoindre la salle
-              </button>
-            </li>
-          ))}
-        </ul>
-        <button
-          onClick={openModal}
-          disabled={!isButtonDisabled}
-          className={`w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded-lg 
-        hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 
-        transition duration-300 ease-in-out ${
-          !isButtonDisabled ? "opacity-50 cursor-not-allowed" : ""
-        }`}
-        >
-          Créer une salle
-        </button>
+              ➕ Nouvelle Salle
+            </button>
+          </div>
+
+          {rooms.length === 0 ? (
+            <div className="card text-center py-12">
+              <p className="text-2xl mb-2">📭</p>
+              <p className="text-neutral-600">Aucune salle disponible</p>
+              <p className="text-sm text-neutral-500 mt-1">
+                Créez la première salle pour commencer!
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {rooms.map((r) => {
+                const inGame = isRoomInGame(r);
+                return (
+                  <div
+                    key={r.id}
+                    className={`card border-l-4 ${inGame ? "border-l-yellow-500 opacity-75" : "border-l-primary"} transition`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-bold text-neutral-900 text-lg">
+                          {r.name}
+                        </h3>
+                        <div className="flex gap-4 mt-2 text-sm text-neutral-500">
+                          <span>
+                            👤 {r.users?.length || 0} joueur
+                            {(r.users?.length || 0) > 1 ? "s" : ""}
+                          </span>
+                          {inGame && (
+                            <span className="text-yellow-600 font-medium">
+                              ⚡ Partie en cours
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => onJoinRoom(r.id)}
+                        disabled={inGame}
+                        className={`${
+                          inGame
+                            ? "btn btn-secondary text-gray-400 cursor-not-allowed"
+                            : "btn btn-primary"
+                        } whitespace-nowrap ml-4`}
+                      >
+                        {inGame ? "Occupée" : "Rejoindre"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Users Section */}
+        {users.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-bold text-neutral-900 mb-4">
+              👥 Joueurs Connectés ({users.length})
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {users.map((user) => (
+                <div key={user.id} className="card">
+                  <div className="flex items-center gap-3">
+                    {/* Avatar */}
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white ${
+                        user.id === currentUser.id
+                          ? "bg-gradient-to-r from-primary to-secondary"
+                          : "bg-neutral-400"
+                      }`}
+                    >
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+
+                    {/* Info */}
+                    <div className="flex-1">
+                      <p className="font-semibold text-neutral-900">
+                        {user.name}
+                      </p>
+                      {user.id === currentUser.id && (
+                        <span className="text-xs font-medium text-primary">
+                          ✓ Vous
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Status Indicator */}
+                    <div
+                      className={`w-3 h-3 rounded-full ${
+                        user.id === currentUser.id
+                          ? "bg-green-500"
+                          : "bg-gray-400"
+                      }`}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold sm:text-2xl lg:text-3xl text-white">
-          Utilisateurs Connectés
-        </h2>
-        <ul className="space-y-2">
-          {users.map((user) => (
-            <li
-              key={user.id}
-              className="flex items-center p-2 bg-gray-100 rounded-lg shadow-md"
-            >
-              <span
-                className={`w-2.5 h-2.5 rounded-full ${
-                  user.id === currentUser.id ? "bg-green-500" : "bg-gray-400"
-                } mr-2`}
-              ></span>
-              <span className="text-base sm:text-lg">{user.name}</span>{" "}
-              <i className="text-gray-500">
-                {user.id === currentUser.id ? `(Me)` : ""}
-              </i>
-            </li>
-          ))}
-        </ul>
-      </div>
-
+      {/* Create Room Modal */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         contentLabel="Créer une nouvelle salle"
-        className="fixed inset-0 m-auto max-w-sm sm:max-w-md lg:max-w-lg w-full p-6 bg-white rounded-lg shadow-lg z-50"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+        className="fixed inset-0 m-auto w-full max-w-md p-4 z-50"
+        overlayClassName="fixed inset-0 bg-black/50 flex items-center justify-center"
       >
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold sm:text-xl lg:text-2xl">
-            Création de Salle
+        <div className="card">
+          <h2 className="text-2xl font-bold text-neutral-900 mb-6">
+            ➕ Créer une Salle
           </h2>
-          <input
-            type="text"
-            placeholder="Entrer le nom de la salle"
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {error && <div className="text-red-500">{error}</div>}
-          <button
-            onClick={handleCreateRoom}
-            className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
-            disabled={room.trim() === ""}
-          >
-            Créer une salle de jeu
-          </button>
-          <button
-            onClick={closeModal}
-            className="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-300 ease-in-out"
-          >
-            Fermer
-          </button>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                Nom de la salle
+              </label>
+              <input
+                autoFocus
+                type="text"
+                className="input"
+                placeholder="ex: Soirée jeux"
+                value={room}
+                onChange={(e) => setRoom(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleCreateRoom()}
+              />
+            </div>
+
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                ⚠️ {error}
+              </div>
+            )}
+
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={handleCreateRoom}
+                disabled={room.trim() === ""}
+                className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Créer
+              </button>
+              <button onClick={closeModal} className="btn btn-danger  flex-1">
+                Annuler
+              </button>
+            </div>
+          </div>
         </div>
       </Modal>
     </div>
