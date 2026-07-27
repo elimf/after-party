@@ -2,37 +2,32 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../hooks/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import PasswordInput from "../component/PasswordInput";
+import logo from "../assets/logo.svg";
+import "../styles/theme.css";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false); // État pour gérer le chargement
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const apiUrl = process.env.REACT_APP_API_URL;
+  const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
 
     if (!email || !password) {
       setError("Veuillez remplir tous les champs");
       return;
     }
 
-    setLoading(true); // Début du chargement
+    setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${apiUrl}/auth/login`,
-        { email, password },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          }
-        }
-      );
+      const response = await axios.post(`${apiUrl}/auth/login`, { email, password });
 
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
@@ -42,66 +37,95 @@ function Login() {
         setError("Vérifiez vos informations de connexion");
       }
     } catch (err) {
-      if (err.response) {
-        console.error('Error Response:', err.response);
-        setError(`Une erreur est survenue : ${err.response.data.message || err.response.statusText}`);
-      } else if (err.request) {
-        console.error('Error Request:', err.request);
-        setError('Aucune réponse reçue du serveur.');
-      } else {
-        console.error('Error Message:', err.message);
-        setError(`Une erreur est survenue : ${err.message}`);
-      }
+      const message = err.response?.data?.error || err.message || "Une erreur est survenue";
+      setError(message);
     } finally {
-      setLoading(false); // Fin du chargement
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white p-6 rounded shadow-md max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-center">Connexion</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium">
-              Email
-            </label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 border rounded mt-1 text-sm"
-              placeholder="Entrer votre email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700 flex items-center justify-center p-4">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
+
+      <div className="relative z-10 w-full max-w-md">
+        <div className="card border-0 bg-white/95 backdrop-blur-sm">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <img src={logo} alt="After Party" className="w-24 h-24 mx-auto mb-4" />
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-1">
+              After Party
+            </h1>
+            <p className="text-gray-600 text-sm">Connectez-vous pour jouer</p>
           </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-medium">
-              Mot de passe
-            </label>
-            <input
-              type="password"
-              className="w-full px-3 py-2 border rounded mt-1 text-sm"
-              placeholder="Entrer votre mot de passe"
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                className="input"
+                placeholder="exemple@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
+              placeholder="••••••••"
+              label="Mot de passe"
             />
+
+            {/* Error */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm fade-in">
+                ⚠️ {error}
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary w-full py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <span className="loading inline-block">Connexion...</span>
+              ) : (
+                "Se connecter"
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="my-6 flex items-center gap-3">
+            <div className="flex-1 h-px bg-gray-300"></div>
+            <span className="text-xs text-gray-500 font-medium">OU</span>
+            <div className="flex-1 h-px bg-gray-300"></div>
           </div>
-          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-          <button
-            type="submit"
-            className={`w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={loading} // Désactive le bouton pendant le chargement
-          >
-            {loading ? "Connexion en cours..." : "Connexion"} {/* Affiche un texte différent pendant le chargement */}
-          </button>
-        </form>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Pas encore de compte ?{" "}
-          <Link to="/register" className="text-blue-500 hover:underline">
-            Inscrivez-vous
-          </Link>
+
+          {/* Register Link */}
+          <p className="text-center text-sm text-gray-600">
+            Pas encore inscrit ?{" "}
+            <Link to="/register" className="font-semibold text-purple-600 hover:text-purple-700 transition">
+              Créer un compte
+            </Link>
+          </p>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-white/60 text-xs mt-6">
+          © 2026 After Party. Tous droits réservés.
         </p>
       </div>
     </div>
