@@ -7,13 +7,13 @@ const useSpotifyAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if we have a Spotify token stored
-    const storedToken = localStorage.getItem('spotifyToken');
-    const storedUser = localStorage.getItem('spotifyUser');
+    // Check if Spotify is authenticated
+    const spotifyAuth = localStorage.getItem('spotifyAuthenticated');
+    const spotifyId = localStorage.getItem('spotifyId');
 
-    if (storedToken) {
-      setSpotifyToken(storedToken);
-      setSpotifyUser(storedUser);
+    if (spotifyAuth === 'true' && spotifyId) {
+      setSpotifyToken(spotifyId);
+      setSpotifyUser(spotifyId);
       setIsAuthenticated(true);
     }
 
@@ -25,20 +25,12 @@ const useSpotifyAuth = () => {
     window.location.href = `${apiUrl}/auth/spotify/authorize`;
   };
 
-  const handleOAuthCallback = (token, user) => {
-    setSpotifyToken(token);
-    setSpotifyUser(user);
-    setIsAuthenticated(true);
-    localStorage.setItem('spotifyToken', token);
-    localStorage.setItem('spotifyUser', user);
-  };
-
   const logout = () => {
     setSpotifyToken(null);
     setSpotifyUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('spotifyToken');
-    localStorage.removeItem('spotifyUser');
+    localStorage.removeItem('spotifyAuthenticated');
+    localStorage.removeItem('spotifyId');
   };
 
   return {
@@ -47,7 +39,6 @@ const useSpotifyAuth = () => {
     isAuthenticated,
     loading,
     loginWithSpotify,
-    handleOAuthCallback,
     logout,
   };
 };

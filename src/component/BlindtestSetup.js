@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import useSpotifyAuth from '../hooks/useSpotifyAuth';
 import '../styles/theme.css';
 
@@ -6,16 +7,44 @@ const BlindtestSetup = ({
   isOpen,
   onRequestClose,
   onStart,
-  playlists,
   themes,
-  loading,
 }) => {
   const [musicSource, setMusicSource] = useState('artists');
   const [selectedPlaylist, setSelectedPlaylist] = useState('');
   const [selectedTheme, setSelectedTheme] = useState('');
   const [questionCount, setQuestionCount] = useState('');
   const [difficulty, setDifficulty] = useState('');
+  const [playlists, setPlaylists] = useState([]);
+  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
   const { spotifyToken, spotifyUser, loginWithSpotify } = useSpotifyAuth();
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+
+  // Fetch playlists when Spotify is authenticated
+  useEffect(() => {
+    if (spotifyToken && musicSource === 'playlists') {
+      fetchPlaylists();
+    }
+  }, [spotifyToken, musicSource]);
+
+  const fetchPlaylists = async () => {
+    try {
+      setLoadingPlaylists(true);
+      const authToken = localStorage.getItem('authToken');
+
+      const response = await axios.get(`${apiUrl}/auth/spotify/playlists`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+        }
+      });
+
+      setPlaylists(response.data.playlists || []);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+      setPlaylists([]);
+    } finally {
+      setLoadingPlaylists(false);
+    }
+  };
 
   const handleStart = () => {
     if (!questionCount || !difficulty) {
@@ -139,7 +168,7 @@ const BlindtestSetup = ({
               value={selectedPlaylist}
               onChange={(e) => setSelectedPlaylist(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
-              disabled={loading || !playlists?.length}
+              disabled={loadingPlaylists || !playlists?.length}
             >
               <option value="">-- Sélectionner une playlist --</option>
               {playlists?.map((playlist) => (
@@ -212,7 +241,7 @@ const BlindtestSetup = ({
           <button
             onClick={handleStart}
             className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
+            disabled={loadingPlaylists}
           >
             Commencer le Blindtest
           </button>
