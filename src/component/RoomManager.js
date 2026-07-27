@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Chat from "./Chat";
 import QuizQuestion from "./Game/QuizQuestion";
 import QuizResults from "./Game/QuizResults";
@@ -27,14 +27,15 @@ const RoomManager = ({
   const [questionCount, setQuestionCount] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [timeLimit, setTimeLimit] = useState(0);
-  const [playlists, setPlaylists] = useState([]);
-  const [themes, setThemes] = useState([
+
+  const playlists = [];
+  const themes = [
     { id: 'top100', name: 'Top 100 Global' },
     { id: 'rap', name: 'Rap' },
     { id: 'rnb', name: 'R&B' },
     { id: 'electro', name: 'Électronique' },
-  ]);
-  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+  ];
+  const loadingPlaylists = false;
 
   const isOwner = currentRoom.ownerId === currentUser.id;
   const isQuizRunning = currentRoom.quiz?.isRunning;

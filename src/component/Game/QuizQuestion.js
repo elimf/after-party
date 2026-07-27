@@ -20,6 +20,8 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
   const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
 
   useEffect(() => {
+    const audioElement = audioRef.current;
+
     if (quizStarted) {
       setSelectedChoice(null);
       setTimeLeft(timeLimit / 1000);
@@ -36,7 +38,6 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
         });
       }, 1000);
 
-      const audioElement = audioRef.current;
       if (audioElement) {
         audioElement.pause();
         audioElement.currentTime = 0;
@@ -50,8 +51,8 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
 
     return () => {
       clearInterval(timerRef.current);
-      if (audioRef.current) {
-        audioRef.current.pause();
+      if (audioElement) {
+        audioElement.pause();
       }
     };
   }, [quizStarted, currentQuestionIndex, timeLimit, type, mediaUrl]);

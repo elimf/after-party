@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import useSpotifyAuth from '../hooks/useSpotifyAuth';
 import '../styles/theme.css';
 
@@ -15,7 +15,7 @@ const BlindtestSetup = ({
   const [selectedTheme, setSelectedTheme] = useState('');
   const [questionCount, setQuestionCount] = useState('');
   const [difficulty, setDifficulty] = useState('');
-  const { spotifyToken, spotifyUser, loginWithSpotify, isAuthenticated } = useSpotifyAuth();
+  const { spotifyToken, spotifyUser, loginWithSpotify } = useSpotifyAuth();
 
   const handleStart = () => {
     if (!questionCount || !difficulty) {
