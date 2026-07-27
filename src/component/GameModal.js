@@ -1,5 +1,6 @@
 import React from "react";
 import Modal from "react-modal";
+import "../styles/theme.css";
 
 const GameModal = ({
   isOpen,
@@ -17,41 +18,54 @@ const GameModal = ({
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       contentLabel={title}
-      className="modal max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg"
-      overlayClassName="modal-overlay fixed inset-0 bg-black bg-opacity-50"
+      className="fixed inset-0 m-auto w-full max-w-md p-4 z-50"
+      overlayClassName="fixed inset-0 bg-black/50 flex items-center justify-center"
     >
-      <h2 className="text-2xl font-semibold mb-4">{title}</h2>
-      {options.map((option, index) => (
-        <div key={index} className="mb-4">
-          <h2 className="text-2xl font-semibold mb-4">{option.label}</h2>
-          <select
-            value={values[index]}
-            onChange={(e) => setValues(index, e.target.value)}
-            className="p-2 border border-gray-300 rounded-lg w-full"
-          >
-            <option value="">Sélectionner</option>
-            {option.choices.map((choice, i) => (
-              <option key={i} value={choice.value}>
-                {choice.label}
-              </option>
-            ))}
-          </select>
+      <div className="card">
+        {/* Header */}
+        <h2 className="text-2xl font-bold  mb-6">
+          {title}
+        </h2>
+
+        {/* Options */}
+        <div className="space-y-4 mb-6">
+          {options.map((option, index) => (
+            <div key={index}>
+              <label className="block text-sm font-semibold text-neutral-700 mb-2">
+                {option.label}
+              </label>
+              <select
+                value={values[index]}
+                onChange={(e) => setValues(index, e.target.value)}
+                className="input w-full"
+              >
+                <option value="">-- Sélectionner --</option>
+                {option.choices.map((choice, i) => (
+                  <option key={i} value={choice.value}>
+                    {choice.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ))}
         </div>
-      ))}
-      <div className="flex gap-4">
-        <button
-          onClick={onStart}
-          disabled={disableStartButton}
-          className="btn btn-primary bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
-        >
-          {startButtonText}
-        </button>
-        <button
-          onClick={onRequestClose}
-          className="btn btn-secondary bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-200"
-        >
-          Annuler
-        </button>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={onStart}
+            disabled={disableStartButton}
+            className="btn btn-primary flex-1 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {startButtonText}
+          </button>
+          <button
+            onClick={onRequestClose}
+            className="btn btn-danger flex-1 font-semibold"
+          >
+            Annuler
+          </button>
+        </div>
       </div>
     </Modal>
   );
