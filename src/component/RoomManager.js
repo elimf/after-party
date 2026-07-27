@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Chat from "./Chat";
 import QuizQuestion from "./Game/QuizQuestion";
 import QuizResults from "./Game/QuizResults";
 import PetitBac from "./Game/PetitBac";
 import GameModal from "./GameModal";
 import BacResults from "./Game/BacResults";
+import BlindtestSetup from "./BlindtestSetup";
 
 const RoomManager = ({
   currentRoom,
@@ -26,6 +27,14 @@ const RoomManager = ({
   const [questionCount, setQuestionCount] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [timeLimit, setTimeLimit] = useState(0);
+  const [playlists, setPlaylists] = useState([]);
+  const [themes, setThemes] = useState([
+    { id: 'top100', name: 'Top 100 Global' },
+    { id: 'rap', name: 'Rap' },
+    { id: 'rnb', name: 'R&B' },
+    { id: 'electro', name: 'Électronique' },
+  ]);
+  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
 
   const isOwner = currentRoom.ownerId === currentUser.id;
   const isQuizRunning = currentRoom.quiz?.isRunning;
@@ -49,9 +58,16 @@ const RoomManager = ({
     }
   };
 
-  const handleStartBlindtest = () => {
-    if (difficulty && questionCount) {
-      startQuiz("Blindtest", questionCount, difficulty);
+  const handleStartBlindtest = (blindtestConfig) => {
+    if (blindtestConfig.difficulty && blindtestConfig.questionCount) {
+      // Pass new music source parameters to backend
+      startQuiz(
+        "Blindtest",
+        blindtestConfig.questionCount,
+        blindtestConfig.difficulty,
+        blindtestConfig.musicSource,
+        blindtestConfig.sourceId
+      );
       closeBlindtestModal();
     }
   };
@@ -172,38 +188,14 @@ const RoomManager = ({
         disableStartButton={!questionType || !questionCount || !difficulty}
       />
 
-      {/* Modal Blindtest */}
-      <GameModal
+      {/* Modal Blindtest (New) */}
+      <BlindtestSetup
         isOpen={isBlindtestModalOpen}
         onRequestClose={closeBlindtestModal}
-        title="Blindtest"
-        options={[
-          {
-            label: "Choisissez le nombre de chansons pour le Blindtest",
-            choices: [
-              { value: 5, label: "5" },
-              { value: 10, label: "10" },
-              { value: 15, label: "15" },
-              { value: 20, label: "20" },
-            ],
-          },
-          {
-            label: "Choisissez la difficulté pour le Blindtest",
-            choices: [
-              { value: "easy", label: "Facile" },
-              { value: "medium", label: "Moyenne" },
-              { value: "hard", label: "Difficile" },
-            ],
-          },
-        ]}
-        values={[questionCount, difficulty]}
-        setValues={(index, value) => {
-          const setters = [setQuestionCount, setDifficulty];
-          setters[index](value);
-        }}
         onStart={handleStartBlindtest}
-        startButtonText="Commencer le Blindtest"
-        disableStartButton={!difficulty || !questionCount}
+        playlists={playlists}
+        themes={themes}
+        loading={loadingPlaylists}
       />
 
       {/* Modal Petit Bac */}

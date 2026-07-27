@@ -3,12 +3,16 @@ import "../../styles/theme.css";
 
 const PetitBac = ({ room, onSubmit }) => {
   const currentLetter = room.bacGame.currentLetter || "";
-  const categories = room.bacGame.categories || [];
   const [timeLeft, setTimeLeft] = useState(room.bacGame.timeLimit);
   const [localResponses, setLocalResponses] = useState({});
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const roundStartedAtRef = useRef(Date.now());
+
+  const categories = useMemo(
+    () => room.bacGame.categories || [],
+    [room.bacGame.categories]
+  );
 
   const normalizedLetter = useMemo(
     () => normalize(currentLetter),

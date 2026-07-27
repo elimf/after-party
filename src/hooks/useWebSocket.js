@@ -174,18 +174,24 @@ const useWebSocket = (url) => {
     }
   };
 
-  const startQuiz = (typeQuestion, numberQuestion, difficulty) => {
+  const startQuiz = (typeQuestion, numberQuestion, difficulty, musicSource, sourceId) => {
     if (socketRef.current) {
-      socketRef.current.send(
-        JSON.stringify({
-          type: "startQuiz",
-          roomId: currentRoom.id,
-          user: currentUser.id,
-          typeQuestion: typeQuestion,
-          numberQuestion: numberQuestion,
-          difficulty: difficulty,
-        })
-      );
+      const message = {
+        type: "startQuiz",
+        roomId: currentRoom.id,
+        user: currentUser.id,
+        typeQuestion: typeQuestion,
+        numberQuestion: numberQuestion,
+        difficulty: difficulty,
+      };
+
+      // Add Spotify music source parameters if provided
+      if (typeQuestion === "Blindtest" && musicSource) {
+        message.musicSource = musicSource;
+        message.sourceId = sourceId;
+      }
+
+      socketRef.current.send(JSON.stringify(message));
       toast.info("Quiz va démarrer!");
     }
   };

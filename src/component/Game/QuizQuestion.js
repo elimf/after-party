@@ -10,10 +10,6 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
   const [selectedChoice, setSelectedChoice] = useState(null);
   const [timeLeft, setTimeLeft] = useState(timeLimit / 1000);
   const [isTimeUp, setIsTimeUp] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(100);
-  const [audioDuration, setAudioDuration] = useState(0);
-  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
   const timerRef = useRef(null);
   const audioRef = useRef(null);
 
@@ -54,9 +50,8 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
 
     return () => {
       clearInterval(timerRef.current);
-      const audioElement = audioRef.current;
-      if (audioElement) {
-        audioElement.pause();
+      if (audioRef.current) {
+        audioRef.current.pause();
       }
     };
   }, [quizStarted, currentQuestionIndex, timeLimit, type, mediaUrl]);
@@ -74,47 +69,6 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
     } else {
       toast.warn("Veuillez sélectionner une réponse");
     }
-  };
-
-  // Blindtest audio handlers
-  const togglePlayPause = () => {
-    const audio = audioRef.current;
-    if (audio) {
-      if (isPlaying) {
-        audio.pause();
-        setIsPlaying(false);
-      } else {
-        audio.play();
-        setIsPlaying(true);
-      }
-    }
-  };
-
-  const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume / 100;
-    }
-  };
-
-  const handleAudioTimeUpdate = () => {
-    if (audioRef.current) {
-      setAudioCurrentTime(audioRef.current.currentTime);
-    }
-  };
-
-  const handleAudioLoadedMetadata = () => {
-    if (audioRef.current) {
-      setAudioDuration(audioRef.current.duration);
-    }
-  };
-
-  const formatTime = (seconds) => {
-    if (!seconds || isNaN(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   if (!quizQuestion) {
@@ -158,73 +112,9 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
             </span>
           </div>
 
-          {/* Audio Player (Blindtest) */}
+          {/* Audio (auto-plays) */}
           {type === "Blindtest" && mediaUrl && (
-            <div className="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <audio
-                ref={audioRef}
-                src={mediaUrl}
-                onTimeUpdate={handleAudioTimeUpdate}
-                onLoadedMetadata={handleAudioLoadedMetadata}
-                onEnded={() => setIsPlaying(false)}
-              />
-
-              {/* Player Header */}
-              <p className="text-sm font-semibold text-gray-900 mb-3">
-                🎵 Écoutez et deviez
-              </p>
-
-              {/* Controls */}
-              <div className="flex items-center gap-3 mb-3">
-                <button
-                  onClick={togglePlayPause}
-                  className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white flex items-center justify-center hover:shadow-md transition"
-                  title={isPlaying ? "Pause" : "Play"}
-                >
-                  {isPlaying ? "⏸️" : "▶️"}
-                </button>
-
-                {/* Volume Control */}
-                <div className="flex items-center gap-2 flex-1">
-                  <span className="text-xs text-gray-600">🔊</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-                    title="Volume"
-                  />
-                  <span className="text-xs text-gray-600 w-8 text-right">
-                    {volume}%
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="mb-2">
-                <input
-                  type="range"
-                  min="0"
-                  max={audioDuration || 0}
-                  value={audioCurrentTime}
-                  onChange={(e) => {
-                    if (audioRef.current) {
-                      audioRef.current.currentTime = parseFloat(e.target.value);
-                    }
-                  }}
-                  className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
-                  title="Progress"
-                />
-              </div>
-
-              {/* Time Display */}
-              <div className="flex justify-between text-xs text-gray-600">
-                <span>{formatTime(audioCurrentTime)}</span>
-                <span>{formatTime(audioDuration)}</span>
-              </div>
-            </div>
+            <audio ref={audioRef} src={mediaUrl} autoPlay />
           )}
 
           {/* Question */}
