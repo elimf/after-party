@@ -1,70 +1,105 @@
-# Getting Started with Create React App
+# After Party - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Interface React du jeu multijoueur **After Party**. Elle permet aux joueurs de créer/rejoindre des salons, discuter et jouer en temps réel aux différents modes de jeu via WebSocket.
 
-## Available Scripts
+Ce projet fait partie du monorepo `game/` avec [`api-after-party`](../api-after-party) qui lui sert de backend.
 
-In the project directory, you can run:
+## 🎮 Modes de jeu
 
-### `npm start`
+| Mode | Description |
+|---|---|
+| **Quiz Classique** | Questions à choix multiples avec système de points basé sur la rapidité de réponse. |
+| **Blindtest** | Devine le titre ou l'artiste à partir d'un extrait audio 30s issu d'iTunes. Configurable par artistes prédéfinis, genre, pays ou thème. |
+| **Petit Bac** | Jeu du Baccalauréat avec lettre aléatoire, validation automatique des réponses, détection de doublons et calcul des points côté serveur. |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠 Stack technique
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| Outil | Usage |
+|---|---|
+| [React 18](https://reactjs.org/) | Framework UI (Create React App) |
+| [React Router DOM v6](https://reactrouter.com/) | Routage (Login, Register, MainPage) |
+| [Tailwind CSS](https://tailwindcss.com/) | Styling |
+| [WebSocket natif](https://developer.mozilla.org/fr/docs/Web/API/WebSocket) | Communication temps réel avec le backend |
+| [React Toastify](https://fkhadra.github.io/react-toastify/) | Notifications |
+| [Heroicons](https://heroicons.com/), [React Modal](https://reactcommunity.org/react-modal/) | Composants UI |
+| [Axios](https://axios-http.com/) | Requêtes HTTP (authentification) |
 
-### `npm test`
+## 📁 Architecture
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```text
+after-party/src/
+├── App.js              # Routage + AuthProvider
+├── hooks/
+│   ├── useWebSocket.js # Cœur de la communication WS (état salon/jeu, envoi/réception)
+│   ├── AuthContext.js  # Gestion authentification JWT
+│   └── ProtectedRoute.js
+├── screen/
+│   ├── MainPage.js     # Point d'entrée principal (Header + Waiting/RoomManager)
+│   ├── Login.js        # Authentification
+│   ├── Register.js
+│   └── NotFound.js
+├── component/
+│   ├── RoomManager.js  # Orchestration d'un salon (chat + jeu)
+│   ├── Waiting.js      # Lobby avant de rejoindre un salon
+│   ├── BlindtestSetup.js # Configuration du Blindtest (genre/pays/thème/artistes)
+│   ├── Game/           # Composants spécifiques à chaque mode de jeu
+│   ├── Main/           # Header, etc.
+│   └── Chat.js
+├── styles/             # Thème "AfterParty" (dégradés festifs)
+└── utils/              # Fonctions utilitaires
+```
 
-### `npm run build`
+## 🔌 Contrat WebSocket
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+La communication est entièrement centralisée dans [`src/hooks/useWebSocket.js`](src/hooks/useWebSocket.js). 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Authentification** : Envoi du `token` JWT à la connexion (`type: "start"`)
+- **État synchronisé** : `currentRoom`, `users`, `rooms`, `quizStarted`, `bacResults`
+- **Événements clés** : `question`, `answer`, `endQuiz`, `bacResults`, `room`, `rooms`, `users`, `system`, `reconnect`
+- **Actions** : `createRoom`, `joinRoom`, `leaveRoom`, `startQuiz`, `answerQuiz`, `startBacGame`, `submitBacResponses`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Le frontend **ne doit pas** calculer de points. Toute la logique de scoring est gérée par le backend. Le contrat des types côté serveur est défini dans [`api-after-party/src/types/index.ts`](../api-after-party/src/types/index.ts) et doit être pris en compte avant tout changement impactant le WebSocket.
 
-### `npm run eject`
+## 🚀 Démarrage rapide
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Prérequis
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Node.js >= 16
+- Le backend [`api-after-party`](../api-after-party) doit être en cours d'exécution
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Installation
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm install
+```
 
-## Learn More
+### Configuration
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Créez un fichier `.env` à la racine :
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```env
+REACT_APP_API_WS_URL=ws://localhost:3000
+REACT_APP_API_URL=http://localhost:3000
+```
 
-### Code Splitting
+### Lancement
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+# Développement
+npm start
 
-### Analyzing the Bundle Size
+# Build de production
+npm run build
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+# Tests
+npm test
+```
 
-### Making a Progressive Web App
+L'application sera disponible sur [http://localhost:3000](http://localhost:3000).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## 🧭 Règles de développement
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Cohérence avec le contrat WS** : Avant de modifier un composant lié au jeu, vérifiez l'impact sur `useWebSocket.js` et les types backend.
+- **Backend first** : Si un changement nécessite un nouvel événement/message WS, l'implémenter d'abord côté `api-after-party`.
+- **Pas de logique métier** : Le frontend ne valide/calculte jamais les scores. Seul l'affichage est géré ici.
+- **UX temps-réel** : Garder l'état local fluide et bien synchronisé avec les événements du serveur.
