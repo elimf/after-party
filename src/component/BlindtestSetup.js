@@ -1,50 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import useSpotifyAuth from '../hooks/useSpotifyAuth';
+import React, { useState } from 'react';
 import '../styles/theme.css';
+
+const MUSIC_GENRES = [
+  { id: 'rap', name: 'Rap/Hip-Hop' },
+  { id: 'rnb', name: 'R&B/Soul' },
+  { id: 'pop', name: 'Pop' },
+  { id: 'rock', name: 'Rock' },
+  { id: 'electronic', name: 'Électronique/EDM' },
+  { id: 'indie', name: 'Indie/Alternative' },
+  { id: 'reggae', name: 'Reggae' },
+  { id: 'gospel', name: 'Gospel' },
+  { id: 'jazz', name: 'Jazz' },
+  { id: 'classical', name: 'Classique' },
+  { id: 'country', name: 'Country' },
+  { id: 'disco', name: 'Disco/Funk' },
+  { id: 'kpop', name: 'K-Pop' },
+  { id: 'latino', name: 'Latino' },
+  { id: 'metal', name: 'Metal' },
+  { id: 'blues', name: 'Blues' },
+  { id: 'reggaeton', name: 'Reggaeton' },
+  { id: 'afrobeats', name: 'Afrobeats' },
+];
+
+const COUNTRIES = [
+  { id: 'FR', name: '🇫🇷 France' },
+  { id: 'US', name: '🇺🇸 USA' },
+  { id: 'UK', name: '🇬🇧 Royaume-Uni' },
+  { id: 'CA', name: '🇨🇦 Canada' },
+  { id: 'DE', name: '🇩🇪 Allemagne' },
+  { id: 'IT', name: '🇮🇹 Italie' },
+  { id: 'ES', name: '🇪🇸 Espagne' },
+  { id: 'JP', name: '🇯🇵 Japon' },
+  { id: 'BR', name: '🇧🇷 Brésil' },
+  { id: 'KR', name: '🇰🇷 Corée du Sud' },
+];
+
+const THEME_PLAYLISTS = [
+  { id: 'top100', name: '🔥 Top 100' },
+  { id: 'party', name: '🎉 Party Hits' },
+  { id: 'summer', name: '☀️ Summer Hits' },
+  { id: 'workout', name: '💪 Workout' },
+  { id: 'chill', name: '😌 Chill Vibes' },
+  { id: 'love', name: '💕 Love Songs' },
+  { id: 'indie', name: '🎸 Indie Hits' },
+  { id: 'classics', name: '🎵 All-Time Classics' },
+];
 
 const BlindtestSetup = ({
   isOpen,
   onRequestClose,
   onStart,
-  themes,
 }) => {
-  const [musicSource, setMusicSource] = useState('artists');
-  const [selectedPlaylist, setSelectedPlaylist] = useState('');
+  const [sourceMode, setSourceMode] = useState('predefined'); // 'predefined', 'genre', 'country', 'theme'
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('FR');
   const [selectedTheme, setSelectedTheme] = useState('');
   const [questionCount, setQuestionCount] = useState('');
   const [difficulty, setDifficulty] = useState('');
-  const [playlists, setPlaylists] = useState([]);
-  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
-  const { spotifyToken, spotifyUser, loginWithSpotify } = useSpotifyAuth();
-  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
-
-  // Fetch playlists when Spotify is authenticated
-  useEffect(() => {
-    if (spotifyToken && musicSource === 'playlists') {
-      fetchPlaylists();
-    }
-  }, [spotifyToken, musicSource]);
-
-  const fetchPlaylists = async () => {
-    try {
-      setLoadingPlaylists(true);
-      const authToken = localStorage.getItem('authToken');
-
-      const response = await axios.get(`${apiUrl}/auth/spotify/playlists`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        }
-      });
-
-      setPlaylists(response.data.playlists || []);
-    } catch (error) {
-      console.error('Error fetching playlists:', error);
-      setPlaylists([]);
-    } finally {
-      setLoadingPlaylists(false);
-    }
-  };
 
   const handleStart = () => {
     if (!questionCount || !difficulty) {
@@ -52,31 +64,24 @@ const BlindtestSetup = ({
       return;
     }
 
-    if (musicSource === 'playlists') {
-      if (!selectedPlaylist) {
-        alert('Veuillez sélectionner une playlist');
-        return;
-      }
-      if (!spotifyToken) {
-        alert('Connexion Spotify requise pour utiliser vos playlists');
-        return;
-      }
+    if (sourceMode === 'genre' && !selectedGenre) {
+      alert('Veuillez sélectionner un genre');
+      return;
     }
 
-    if (musicSource === 'themes') {
-      if (!selectedTheme) {
-        alert('Veuillez sélectionner un thème');
-        return;
-      }
-      if (!spotifyToken) {
-        alert('Connexion Spotify requise pour les thèmes');
-        return;
-      }
+    if (sourceMode === 'theme' && !selectedTheme) {
+      alert('Veuillez sélectionner un thème');
+      return;
     }
+
+    let sourceId = 'random';
+    if (sourceMode === 'genre') sourceId = selectedGenre;
+    else if (sourceMode === 'country') sourceId = selectedCountry;
+    else if (sourceMode === 'theme') sourceId = selectedTheme;
 
     onStart({
-      musicSource,
-      sourceId: musicSource === 'playlists' ? selectedPlaylist : selectedTheme,
+      musicSource: sourceMode === 'predefined' ? 'artists' : sourceMode,
+      sourceId,
       questionCount,
       difficulty,
     });
@@ -87,93 +92,99 @@ const BlindtestSetup = ({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">🎵 Blindtest</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">🎵 Blindtest iTunes</h2>
 
-        {/* Music Source Selection */}
+        {/* Source Mode Selection */}
         <div className="mb-6">
           <label className="block text-sm font-semibold text-gray-900 mb-3">
             Choisissez votre source musicale
           </label>
-
           <div className="space-y-2">
             <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
               <input
                 type="radio"
-                name="musicSource"
-                value="artists"
-                checked={musicSource === 'artists'}
-                onChange={(e) => setMusicSource(e.target.value)}
+                name="sourceMode"
+                value="predefined"
+                checked={sourceMode === 'predefined'}
+                onChange={(e) => setSourceMode(e.target.value)}
                 className="w-4 h-4"
               />
-              <span className="text-gray-900 font-medium">Artistes présélectionnés</span>
+              <span className="text-gray-900 font-medium">Artistes prédéfinis</span>
             </label>
 
             <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
               <input
                 type="radio"
-                name="musicSource"
-                value="playlists"
-                checked={musicSource === 'playlists'}
-                onChange={(e) => setMusicSource(e.target.value)}
+                name="sourceMode"
+                value="genre"
+                checked={sourceMode === 'genre'}
+                onChange={(e) => setSourceMode(e.target.value)}
                 className="w-4 h-4"
               />
-              <span className="text-gray-900 font-medium">Mes playlists Spotify</span>
+              <span className="text-gray-900 font-medium">Par genre</span>
             </label>
 
             <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
               <input
                 type="radio"
-                name="musicSource"
-                value="themes"
-                checked={musicSource === 'themes'}
-                onChange={(e) => setMusicSource(e.target.value)}
+                name="sourceMode"
+                value="country"
+                checked={sourceMode === 'country'}
+                onChange={(e) => setSourceMode(e.target.value)}
                 className="w-4 h-4"
               />
-              <span className="text-gray-900 font-medium">Thèmes (Top 100, Rap, RnB...)</span>
+              <span className="text-gray-900 font-medium">Par pays</span>
+            </label>
+
+            <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+              <input
+                type="radio"
+                name="sourceMode"
+                value="theme"
+                checked={sourceMode === 'theme'}
+                onChange={(e) => setSourceMode(e.target.value)}
+                className="w-4 h-4"
+              />
+              <span className="text-gray-900 font-medium">Par thème/Playlist</span>
             </label>
           </div>
         </div>
 
-        {/* Spotify Login for Playlists/Themes */}
-        {(musicSource === 'playlists' || musicSource === 'themes') && !spotifyToken && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800 mb-3">
-              Connectez-vous à Spotify pour accéder {musicSource === 'playlists' ? 'à vos playlists' : 'aux thèmes'}
-            </p>
-            <button
-              onClick={loginWithSpotify}
-              className="w-full px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
-            >
-              🎵 Se connecter à Spotify
-            </button>
-          </div>
-        )}
-
-        {/* Spotify User Info */}
-        {spotifyToken && spotifyUser && (
-          <div className="mb-6 p-3 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-sm text-green-800 font-medium">
-              ✓ Connecté en tant que {spotifyUser}
-            </p>
-          </div>
-        )}
-
-        {/* Playlist Selection */}
-        {musicSource === 'playlists' && spotifyToken && (
+        {/* Genre Selection */}
+        {sourceMode === 'genre' && (
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Sélectionnez une playlist
+              Sélectionnez un genre
             </label>
             <select
-              value={selectedPlaylist}
-              onChange={(e) => setSelectedPlaylist(e.target.value)}
+              value={selectedGenre}
+              onChange={(e) => setSelectedGenre(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
-              disabled={loadingPlaylists || !playlists?.length}
             >
-              <option value="">-- Sélectionner une playlist --</option>
-              {playlists?.map((playlist) => (
-                <option key={playlist.id} value={playlist.id}>
-                  {playlist.name}
+              <option value="">-- Choisir un genre --</option>
+              {MUSIC_GENRES.map((genre) => (
+                <option key={genre.id} value={genre.id}>
+                  {genre.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Country Selection */}
+        {sourceMode === 'country' && (
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-900 mb-2">
+              Sélectionnez un pays
+            </label>
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
+            >
+              {COUNTRIES.map((country) => (
+                <option key={country.id} value={country.id}>
+                  {country.name}
                 </option>
               ))}
             </select>
@@ -181,7 +192,7 @@ const BlindtestSetup = ({
         )}
 
         {/* Theme Selection */}
-        {musicSource === 'themes' && spotifyToken && (
+        {sourceMode === 'theme' && (
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-900 mb-2">
               Sélectionnez un thème
@@ -191,8 +202,8 @@ const BlindtestSetup = ({
               onChange={(e) => setSelectedTheme(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
             >
-              <option value="">-- Sélectionner un thème --</option>
-              {themes?.map((theme) => (
+              <option value="">-- Choisir un thème --</option>
+              {THEME_PLAYLISTS.map((theme) => (
                 <option key={theme.id} value={theme.id}>
                   {theme.name}
                 </option>
@@ -241,7 +252,6 @@ const BlindtestSetup = ({
           <button
             onClick={handleStart}
             className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loadingPlaylists}
           >
             Commencer le Blindtest
           </button>

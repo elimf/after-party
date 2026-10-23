@@ -11,51 +11,54 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
   const [timeLeft, setTimeLeft] = useState(timeLimit / 1000);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const timerRef = useRef(null);
+  const audioStopRef = useRef(null);
   const audioRef = useRef(null);
 
   const quizQuestion = questions[currentQuestionIndex]?.text || "";
   const quizChoices = questions[currentQuestionIndex]?.choices || [];
-  const mediaUrl = questions[currentQuestionIndex]?.mediaUrl || "";
+  const audioUrl = questions[currentQuestionIndex]?.mediaUrl || ""; // iTunes preview URL
   const difficultyQuiz = difficultyTranslation[difficulty] || "Inconnu";
   const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
 
   useEffect(() => {
-    const audioElement = audioRef.current;
-
     if (quizStarted) {
       setSelectedChoice(null);
       setTimeLeft(timeLimit / 1000);
       setIsTimeUp(false);
 
+      // Start timer
       timerRef.current = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timerRef.current);
             setIsTimeUp(true);
+            if (audioRef.current) audioRef.current.pause();
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
 
-      if (audioElement) {
-        audioElement.pause();
-        audioElement.currentTime = 0;
-      }
+      // Play audio from iTunes
+      if (type === "Blindtest" && audioUrl && audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play().catch((err) => console.error("Audio playback error:", err));
 
-      if (type === "Blindtest" && mediaUrl && audioElement) {
-        audioElement.src = mediaUrl;
-        audioElement.play();
+        // Stop after 30 seconds
+        if (audioStopRef.current) clearTimeout(audioStopRef.current);
+        audioStopRef.current = setTimeout(() => {
+          if (audioRef.current) audioRef.current.pause();
+        }, 30000);
       }
     }
 
+    // Cleanup
     return () => {
       clearInterval(timerRef.current);
-      if (audioElement) {
-        audioElement.pause();
-      }
+      if (audioStopRef.current) clearTimeout(audioStopRef.current);
+      if (audioRef.current) audioRef.current.pause();
     };
-  }, [quizStarted, currentQuestionIndex, timeLimit, type, mediaUrl]);
+  }, [quizStarted, currentQuestionIndex, audioUrl, type, timeLimit]);
 
   const handleChoiceSelect = (choiceIndex) => {
     if (!isTimeUp) {
@@ -113,10 +116,8 @@ const QuizQuestion = ({ room, answerQuiz, quizStarted }) => {
             </span>
           </div>
 
-          {/* Audio (auto-plays) */}
-          {type === "Blindtest" && mediaUrl && (
-            <audio ref={audioRef} src={mediaUrl} autoPlay />
-          )}
+          {/* Hidden audio player for iTunes preview */}
+          <audio ref={audioRef} style={{ display: "none" }} />
 
           {/* Question */}
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center leading-tight">

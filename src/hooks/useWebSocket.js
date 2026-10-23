@@ -23,7 +23,7 @@ const useWebSocket = (url) => {
 
       socketRef.current.onmessage = (event) => {
         const parsedMessage = JSON.parse(event.data);
-        console.log("Message reçu :", parsedMessage);
+        // console.log("Message reçu :", parsedMessage);
         const {
           type,
           message,
@@ -52,7 +52,7 @@ const useWebSocket = (url) => {
                 "Un utilisateur a terminé! Vos réponses vont être collectées."
               )
             ) {
-              console.log(room);
+              // console.log(room);
               setCurrentRoom(room);
             } else {
               toast.info(message);
