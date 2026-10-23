@@ -15,21 +15,13 @@ function Login() {
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:4000";
 
-  // Handle Spotify OAuth callback
+  // Handle auth callback
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const token = searchParams.get('token');
-    const spotifyUser = searchParams.get('spotify_user');
 
     if (token) {
-      // Store Spotify auth tokens
       localStorage.setItem('authToken', token);
-      if (spotifyUser) {
-        localStorage.setItem('spotifyUser', spotifyUser);
-        localStorage.setItem('spotifyAuthenticated', 'true');
-      }
-
-      // Login and navigate
       login();
       navigate('/');
     }
