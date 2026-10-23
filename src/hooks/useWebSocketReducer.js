@@ -211,7 +211,7 @@ const useWebSocket = (url) => {
     }
   };
 
-  const startQuiz = (typeQuestion, numberQuestion, difficulty, musicSource, sourceId) => {
+  const startQuiz = (typeQuestion, numberQuestion, difficulty, musicSource, sourceId, includeFeatures) => {
     if (socketRef.current && state.currentRoom && state.currentUser) {
       const message = {
         type: "startQuiz",
@@ -225,6 +225,9 @@ const useWebSocket = (url) => {
       if (typeQuestion === "Blindtest" && musicSource) {
         message.musicSource = musicSource;
         message.sourceId = sourceId;
+        if (includeFeatures !== undefined) {
+          message.includeFeatures = includeFeatures;
+        }
       }
 
       socketRef.current.send(JSON.stringify(message));

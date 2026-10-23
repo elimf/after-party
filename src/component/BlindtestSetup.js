@@ -1,62 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/theme.css';
-
-const MUSIC_GENRES = [
-  { id: 'rap', name: 'Rap/Hip-Hop' },
-  { id: 'rnb', name: 'R&B/Soul' },
-  { id: 'pop', name: 'Pop' },
-  { id: 'rock', name: 'Rock' },
-  { id: 'electronic', name: 'Électronique/EDM' },
-  { id: 'indie', name: 'Indie/Alternative' },
-  { id: 'reggae', name: 'Reggae' },
-  { id: 'gospel', name: 'Gospel' },
-  { id: 'jazz', name: 'Jazz' },
-  { id: 'classical', name: 'Classique' },
-  { id: 'country', name: 'Country' },
-  { id: 'disco', name: 'Disco/Funk' },
-  { id: 'kpop', name: 'K-Pop' },
-  { id: 'latino', name: 'Latino' },
-  { id: 'metal', name: 'Metal' },
-  { id: 'blues', name: 'Blues' },
-  { id: 'reggaeton', name: 'Reggaeton' },
-  { id: 'afrobeats', name: 'Afrobeats' },
-];
-
-const COUNTRIES = [
-  { id: 'FR', name: '🇫🇷 France' },
-  { id: 'US', name: '🇺🇸 USA' },
-  { id: 'UK', name: '🇬🇧 Royaume-Uni' },
-  { id: 'CA', name: '🇨🇦 Canada' },
-  { id: 'DE', name: '🇩🇪 Allemagne' },
-  { id: 'IT', name: '🇮🇹 Italie' },
-  { id: 'ES', name: '🇪🇸 Espagne' },
-  { id: 'JP', name: '🇯🇵 Japon' },
-  { id: 'BR', name: '🇧🇷 Brésil' },
-  { id: 'KR', name: '🇰🇷 Corée du Sud' },
-];
-
-const THEME_PLAYLISTS = [
-  { id: 'top100', name: '🔥 Top 100' },
-  { id: 'party', name: '🎉 Party Hits' },
-  { id: 'summer', name: '☀️ Summer Hits' },
-  { id: 'workout', name: '💪 Workout' },
-  { id: 'chill', name: '😌 Chill Vibes' },
-  { id: 'love', name: '💕 Love Songs' },
-  { id: 'indie', name: '🎸 Indie Hits' },
-  { id: 'classics', name: '🎵 All-Time Classics' },
-];
+import axios from 'axios';
 
 const BlindtestSetup = ({
   isOpen,
   onRequestClose,
   onStart,
 }) => {
-  const [sourceMode, setSourceMode] = useState('predefined'); // 'predefined', 'genre', 'country', 'theme'
-  const [selectedGenre, setSelectedGenre] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('FR');
-  const [selectedTheme, setSelectedTheme] = useState('');
+  const [sourceMode, setSourceMode] = useState('artist'); // 'artist' | 'predefined'
+  const [artistName, setArtistName] = useState('');
+  const [selectedArtists, setSelectedArtists] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [includeFeatures, setIncludeFeatures] = useState(true);
   const [questionCount, setQuestionCount] = useState('');
   const [difficulty, setDifficulty] = useState('');
+  const searchTimeoutRef = useRef(null);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    if (sourceMode !== 'artist') {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    const term = artistName.trim();
+    if (term.length < 1) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    // Don't show suggestions if term matches last added
+    if (selectedArtists.length > 0) {
+      const last = selectedArtists[selectedArtists.length - 1];
+      if (last.name.toLowerCase() === term.toLowerCase()) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+    }
+
+    setIsSearching(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+        const response = await axios.get(`${apiUrl}/blindtest/artists`, {
+          params: { term },
+        });
+        const results = response.data.artists || [];
+        setSuggestions(results);
+        setShowSuggestions(results.length > 0);
+      } catch (error) {
+        console.error('Erreur recherche artistes:', error);
+        setSuggestions([]);
+        setShowSuggestions(false);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 150);
+  }, [artistName, sourceMode, selectedArtists]);
+
+  const handleSelectArtist = (artist) => {
+    const exists = selectedArtists.find((a) => a.name.toLowerCase() === artist.name.toLowerCase());
+    if (exists) {
+      setArtistName('');
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    setSelectedArtists((prev) => [...prev, artist]);
+    setArtistName('');
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleRemoveArtist = (artistToRemove) => {
+    setSelectedArtists((prev) => prev.filter((a) => a.name.toLowerCase() !== artistToRemove.name.toLowerCase()));
+  };
 
   const handleStart = () => {
     if (!questionCount || !difficulty) {
@@ -64,27 +101,43 @@ const BlindtestSetup = ({
       return;
     }
 
-    if (sourceMode === 'genre' && !selectedGenre) {
-      alert('Veuillez sélectionner un genre');
+    if (sourceMode === 'artist') {
+      if (selectedArtists.length === 0) {
+        const finalArtist = artistName.trim();
+        if (!finalArtist) {
+          alert("Veuillez indiquer au moins un artiste");
+          return;
+        }
+        onStart({
+          musicSource: 'artist',
+          sourceId: finalArtist,
+          questionCount,
+          difficulty,
+          includeFeatures,
+        });
+        return;
+      }
+      const sourceId = selectedArtists.map((a) => a.name).join(' ');
+      onStart({
+        musicSource: 'artist',
+        sourceId: sourceId,
+        questionCount,
+        difficulty,
+        includeFeatures,
+      });
       return;
     }
 
-    if (sourceMode === 'theme' && !selectedTheme) {
-      alert('Veuillez sélectionner un thème');
+    if (sourceMode === 'predefined') {
+      onStart({
+        musicSource: 'artists',
+        sourceId: 'random',
+        questionCount,
+        difficulty,
+        includeFeatures: true,
+      });
       return;
     }
-
-    let sourceId = 'random';
-    if (sourceMode === 'genre') sourceId = selectedGenre;
-    else if (sourceMode === 'country') sourceId = selectedCountry;
-    else if (sourceMode === 'theme') sourceId = selectedTheme;
-
-    onStart({
-      musicSource: sourceMode === 'predefined' ? 'artists' : sourceMode,
-      sourceId,
-      questionCount,
-      difficulty,
-    });
   };
 
   if (!isOpen) return null;
@@ -104,6 +157,18 @@ const BlindtestSetup = ({
               <input
                 type="radio"
                 name="sourceMode"
+                value="artist"
+                checked={sourceMode === 'artist'}
+                onChange={(e) => setSourceMode(e.target.value)}
+                className="w-4 h-4"
+              />
+              <span className="text-gray-900 font-medium">Par artiste</span>
+            </label>
+
+            <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+              <input
+                type="radio"
+                name="sourceMode"
                 value="predefined"
                 checked={sourceMode === 'predefined'}
                 onChange={(e) => setSourceMode(e.target.value)}
@@ -111,104 +176,78 @@ const BlindtestSetup = ({
               />
               <span className="text-gray-900 font-medium">Artistes prédéfinis</span>
             </label>
-
-            <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="sourceMode"
-                value="genre"
-                checked={sourceMode === 'genre'}
-                onChange={(e) => setSourceMode(e.target.value)}
-                className="w-4 h-4"
-              />
-              <span className="text-gray-900 font-medium">Par genre</span>
-            </label>
-
-            <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="sourceMode"
-                value="country"
-                checked={sourceMode === 'country'}
-                onChange={(e) => setSourceMode(e.target.value)}
-                className="w-4 h-4"
-              />
-              <span className="text-gray-900 font-medium">Par pays</span>
-            </label>
-
-            <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
-              <input
-                type="radio"
-                name="sourceMode"
-                value="theme"
-                checked={sourceMode === 'theme'}
-                onChange={(e) => setSourceMode(e.target.value)}
-                className="w-4 h-4"
-              />
-              <span className="text-gray-900 font-medium">Par thème/Playlist</span>
-            </label>
           </div>
         </div>
 
-        {/* Genre Selection */}
-        {sourceMode === 'genre' && (
-          <div className="mb-6">
+        {/* Artist Input */}
+        {sourceMode === 'artist' && (
+          <div className="mb-6" ref={wrapperRef}>
             <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Sélectionnez un genre
+              Artistes
             </label>
-            <select
-              value={selectedGenre}
-              onChange={(e) => setSelectedGenre(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
-            >
-              <option value="">-- Choisir un genre --</option>
-              {MUSIC_GENRES.map((genre) => (
-                <option key={genre.id} value={genre.id}>
-                  {genre.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Country Selection */}
-        {sourceMode === 'country' && (
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Sélectionnez un pays
+            {selectedArtists.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {selectedArtists.map((artist) => (
+                  <span
+                    key={artist.name}
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+                  >
+                    {artist.name}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveArtist(artist)}
+                      className="ml-1 text-purple-600 hover:text-purple-900 font-bold"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="relative">
+              <input
+                type="text"
+                value={artistName}
+                onChange={(e) => {
+                  setArtistName(e.target.value);
+                }}
+                placeholder="Tape un nom d'artiste et sélectionne-le..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
+                autoComplete="off"
+              />
+              {isSearching && (
+                <div className="absolute right-3 top-2.5 text-xs text-gray-400">Recherche...</div>
+              )}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {suggestions.map((artist, index) => (
+                    <button
+                      key={`${artist.id}-${artist.name}-${index}`}
+                      type="button"
+                      onClick={() => handleSelectArtist(artist)}
+                      className="w-full text-left px-4 py-2 hover:bg-purple-50 text-gray-900 text-sm border-b border-gray-50 last:border-b-0"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{artist.name}</span>
+                        {(artist.primaryGenreName || artist.genre) && (
+                          <span className="text-xs text-gray-500 ml-2">{artist.primaryGenreName || artist.genre}</span>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Tu peux ajouter plusieurs artistes</p>
+            <label className="flex items-center gap-2 mt-3 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={includeFeatures}
+                onChange={(e) => setIncludeFeatures(e.target.checked)}
+                className="w-4 h-4"
+              />
+              Inclure les featurings
             </label>
-            <select
-              value={selectedCountry}
-              onChange={(e) => setSelectedCountry(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
-            >
-              {COUNTRIES.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* Theme Selection */}
-        {sourceMode === 'theme' && (
-          <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-900 mb-2">
-              Sélectionnez un thème
-            </label>
-            <select
-              value={selectedTheme}
-              onChange={(e) => setSelectedTheme(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-100 transition"
-            >
-              <option value="">-- Choisir un thème --</option>
-              {THEME_PLAYLISTS.map((theme) => (
-                <option key={theme.id} value={theme.id}>
-                  {theme.name}
-                </option>
-              ))}
-            </select>
           </div>
         )}
 

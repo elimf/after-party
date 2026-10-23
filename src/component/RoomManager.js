@@ -67,7 +67,8 @@ const RoomManager = ({
         blindtestConfig.questionCount,
         blindtestConfig.difficulty,
         blindtestConfig.musicSource,
-        blindtestConfig.sourceId
+        blindtestConfig.sourceId,
+        blindtestConfig.includeFeatures
       );
       closeBlindtestModal();
     }
