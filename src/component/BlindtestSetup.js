@@ -113,7 +113,6 @@ const BlindtestSetup = ({
           sourceId: finalArtist,
           questionCount,
           difficulty,
-          includeFeatures,
         });
         return;
       }
@@ -123,7 +122,6 @@ const BlindtestSetup = ({
         sourceId: sourceId,
         questionCount,
         difficulty,
-        includeFeatures,
       });
       return;
     }
@@ -134,7 +132,6 @@ const BlindtestSetup = ({
         sourceId: 'random',
         questionCount,
         difficulty,
-        includeFeatures: true,
       });
       return;
     }
@@ -239,15 +236,6 @@ const BlindtestSetup = ({
               )}
             </div>
             <p className="text-xs text-gray-500 mt-1">Tu peux ajouter plusieurs artistes</p>
-            <label className="flex items-center gap-2 mt-3 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={includeFeatures}
-                onChange={(e) => setIncludeFeatures(e.target.checked)}
-                className="w-4 h-4"
-              />
-              Inclure les featurings
-            </label>
           </div>
         )}
 
